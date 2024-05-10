@@ -67,8 +67,8 @@ int	main(void)
 {
 	char	*line;
 
-	line = get_input("shell$> ");
 	signal(SIGINT, sig_handler);
+	line = get_input("shell$> ");
 	while (line)
 	{
 		if (exact_match(line, "exit"))
