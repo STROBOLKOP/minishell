@@ -6,6 +6,9 @@ WHITE  := $(shell tput -Txterm setaf 7)
 YELLOW := $(shell tput -Txterm setaf 3)
 RESET  := $(shell tput -Txterm sgr0)
 
+SRCS = $(wildcard *.c)
+TEST_EXECS = ${SRCS:.c=}
+
 HELP_DOCS = \
 	%help; \
 	while(<>) { push @{$$help{$$2 // 'options'}}, [$$1, $$3] if /^([\w\-]+)\s*:.*\#\#(?:@([\w\-]+))?\s(.*)$$/ }; \
@@ -21,7 +24,16 @@ HELP_DOCS = \
 help: ##@other Show this help.
 	@perl -e '$(HELP_DOCS)' $(MAKEFILE_LIST)
 
-readline: readline.c ##@exec compile readline testing file.
+all: readline ##@build Compile all the test files.
+
+readline: readline.c ##@build compile readline.c testing file.
 	${CC} -lreadline $< -o $@
 
-.PHONY: help
+clean: ##@cleaning rm object files (none in this branch)
+
+fclean: clean ##@cleaning runs clean then rm built executables
+	rm -f ${TEST_EXECS}
+
+reall: fclean all ##@build runs fclean then runs all
+
+.PHONY: help all clean fclean reall
