@@ -55,7 +55,7 @@ int	main(void)
 {
 	char	*line;
 
-	line = get_input("shell$>");
+	line = get_input("shell$> ");
 	while (line)
 	{
 		if (exact_match(line, "exit"))
@@ -65,7 +65,7 @@ int	main(void)
 			printf("%s\n", line);
 		}
 		free(line);
-		line = get_input("shell$>");
+		line = get_input("shell$> ");
 	}
 	printf("exit\n");
 	exit_handler();
