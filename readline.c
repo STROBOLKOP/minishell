@@ -1,5 +1,6 @@
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <signal.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -45,6 +46,17 @@ char	*get_input(char *prompt)
 	return (line);
 }
 
+void	sig_handler(int signum)
+{
+	if (signum == SIGINT)
+	{
+		printf("\n");
+		rl_on_new_line();
+		rl_replace_line("", 0);
+		rl_redisplay();
+	}
+}
+
 void	exit_handler(void)
 {
 	rl_clear_history();
@@ -56,6 +68,7 @@ int	main(void)
 	char	*line;
 
 	line = get_input("shell$> ");
+	signal(SIGINT, sig_handler);
 	while (line)
 	{
 		if (exact_match(line, "exit"))
