@@ -1,3 +1,5 @@
+.DEFAULT_GOAL := readline
+
 CC = cc
 
 #COLORS
