@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 19:40:59 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/11 12:38:05 by elias            ###   ########.fr       */
+/*   Updated: 2024/05/11 18:40:54 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,16 +17,16 @@ int	check_for_builtins(char *string)
 	if (exact_match(string, "echo"))
 		printf("You have entered the echo builtin\n");
 	else if (exact_match(string, "cd"))
-		printf("You have entered the CD builtin\n");
+		cd_builtin();
 	else if (exact_match(string, "pwd"))
-		printf("You have entered the PWD builtin\n");
+		pwd_builtin();
 	else if (exact_match(string, "export"))
 		printf("You have entered the EXPORT builtin\n");
 	else if (exact_match(string, "unset"))
 		printf("You have entered the UNSET builtin\n");
 	else if (exact_match(string, "env"))
-		printf("You have entered the ENV builtin\n");
+		env_builtin();
 	else if (exact_match(string, "exit"))
-		printf("You have entered the EXIT builtin\n");
+		exit_handler(0);
 	return (0);
 }
