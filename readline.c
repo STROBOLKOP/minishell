@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 size_t	ft_strlen(const char *s)
 {
@@ -59,6 +60,7 @@ void	sig_handler(int signum)
 
 void	exit_handler(void)
 {
+	write(2, "exit\n", 5);
 	rl_clear_history();
 	exit(0);
 }
@@ -80,7 +82,6 @@ int	main(void)
 		free(line);
 		line = get_input("shell$> ");
 	}
-	printf("exit\n");
 	exit_handler();
 	return (0);
 }
