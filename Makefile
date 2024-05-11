@@ -31,6 +31,9 @@ all: readline ##@build Compile all the test files.
 readline: readline.c ##@build Compile readline.c testing file.
 	${CC} $< -o $@ -lreadline
 
+ast: ast.c ##@build Compile Abstract Syntax Tree testing file.
+	${CC} $< -o $@
+
 clean: ##@cleaning rm object files (none in this branch)
 
 fclean: clean ##@cleaning run clean then rm built executables
