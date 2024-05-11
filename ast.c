@@ -6,7 +6,7 @@
 /*   By: elias <efret@student.19.be>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/11 14:17:10 by elias             #+#    #+#             */
-/*   Updated: 2024/05/11 16:15:27 by elias            ###   ########.fr       */
+/*   Updated: 2024/05/11 16:23:35 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,7 @@ struct s_ast
 */
 
 /* AST Shorter and still fine by the norm */
+/*
 typedef struct s_ast	t_ast;
 
 struct s_ast {
@@ -84,6 +85,38 @@ struct s_ast {
 			t_ast	*right;
 		}			s_ast_mul;
 	} u_data;
+};
+*/
+
+/* AST Best middleground I think */
+typedef struct s_ast	t_ast;
+
+typedef enum e_ast_tag {
+	AST_NBR,
+	AST_ADD,
+	AST_MUL,
+}	t_ast_tag;
+
+typedef union u_ast_data {
+	struct s_ast_nbr
+	{
+		int	number;
+	}		s_ast_nbr;
+	struct s_ast_add
+	{
+		t_ast	*left;
+		t_ast	*right;
+	}			s_ast_add;
+	struct s_ast_mul
+	{
+		t_ast	*left;
+		t_ast	*right;
+	}			s_ast_mul;
+}	t_ast_data;
+
+struct s_ast {
+	t_ast_tag	tag;
+	t_ast_data	data;
 };
 
 /* AST structure as found online */
