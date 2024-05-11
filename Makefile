@@ -1,4 +1,4 @@
-.DEFAULT_GOAL := readline
+.DEFAULT_GOAL := $(MKDF)
 
 CC = cc
 
@@ -14,7 +14,7 @@ TEST_EXECS = ${SRCS:.c=}
 HELP_DOCS = \
 	%help; \
 	while(<>) { push @{$$help{$$2 // 'options'}}, [$$1, $$3] if /^([\w\-]+)\s*:.*\#\#(?:@([\w\-]+))?\s(.*)$$/ }; \
-	print "usage: make [target]\n\n"; \
+	print "usage: make [target]\n\nSet default goal with:\nexport MKDF=[target]\n\n"; \
 	for (sort keys %help) { \
 	print "${WHITE}$$_:${RESET}\n"; \
 	for (@{$$help{$$_}}) { \
@@ -28,14 +28,16 @@ help: ##@other Show this help.
 
 all: readline ##@build Compile all the test files.
 
-readline: readline.c ##@build compile readline.c testing file.
-	${CC} -lreadline $< -o $@
+readline: readline.c ##@build Compile readline.c testing file.
+	${CC} $< -o $@ -lreadline
 
 clean: ##@cleaning rm object files (none in this branch)
 
-fclean: clean ##@cleaning runs clean then rm built executables
+fclean: clean ##@cleaning run clean then rm built executables
 	rm -f ${TEST_EXECS}
 
-reall: fclean all ##@build runs fclean then runs all
+re: fclean ${.DEFAULT_GOAL} ##@build run fclean, then compile default goal.
 
-.PHONY: help all clean fclean reall
+reall: fclean all ##@build run fclean then run all
+
+.PHONY: help all clean fclean reall re
