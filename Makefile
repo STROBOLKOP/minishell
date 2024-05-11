@@ -28,10 +28,16 @@ help: ##@other Show this help.
 
 all: readline ##@build Compile all the test files.
 
+.PHONY: readline
 readline: readline.c ##@build Compile readline.c testing file.
 	${CC} $< -o $@ -lreadline
 
+.PHONY: ast
 ast: ast.c ##@build Compile Abstract Syntax Tree testing file.
+	${CC} $< -o $@
+
+.PHONY: token
+token: token.c ##@build Compile token testing file.
 	${CC} $< -o $@
 
 clean: ##@cleaning rm object files (none in this branch)
