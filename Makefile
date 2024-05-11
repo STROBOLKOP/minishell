@@ -16,8 +16,8 @@ OBJ				= $(OBJ_DIR)/main.o $(OBJ_DIR)/check_for_builtins.o
 OBJ_DIR			= obj
 
 UTILS_DIR		= utils
-UTILS_FILES		= $(UTILS_DIR)/exact_match.c $(UTILS_DIR)/ft_strlen.c
-UTILS_OBJ		= $(OBJ_DIR)/exact_match.o $(OBJ_DIR)/ft_strlen.o
+UTILS_FILES		= $(UTILS_DIR)/exact_match.c $(UTILS_DIR)/ft_strlen.c $(UTILS_DIR)/exit_handler.c
+UTILS_OBJ		= $(OBJ_DIR)/exact_match.o $(OBJ_DIR)/ft_strlen.o $(UTILS_DIR)/exit_handler.o
 
 
 INCLUDES		= -I ./includes
@@ -45,7 +45,6 @@ RESET			= \e[2K\r
 #############################################
 
 all: $(NAME)
-
 
 $(NAME): $(OBJ) $(UTILS_OBJ)
 	@$(CC) $(CFLAGS) -o $(NAME) $(OBJ) $(UTILS_OBJ) -lreadline 
@@ -77,4 +76,4 @@ re:
 	@make -s fclean
 	@make -s
 
-.PHONY:			all clean fclean re 
+.PHONY:	all clean fclean re
