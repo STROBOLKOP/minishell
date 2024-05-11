@@ -11,18 +11,13 @@ CFLAGS			= -Wall -Werror -Wextra -g $(INCLUDES)
 MKDIR			= mkdir -p
 
 SOURCES_DIR		= src
-SOURCES			= $(SOURCES_DIR)/main.c $(SOURCES_DIR)/check_for_builtins.c 
-OBJ				= $(OBJ_DIR)/main.o $(OBJ_DIR)/check_for_builtins.o
+SOURCES			= $(SOURCES_DIR)/main.c $(SOURCES_DIR)/check_for_builtins.c $(SOURCES_DIR)/exact_match.c $(SOURCES_DIR)/ft_strlen.c $(SOURCES_DIR)/exit_handler.c 
+OBJ				= $(OBJ_DIR)/main.o $(OBJ_DIR)/check_for_builtins.o $(OBJ_DIR)/exact_match.o $(OBJ_DIR)/ft_strlen.o $(OBJ_DIR)/exit_handler.o
 OBJ_DIR			= obj
-
-UTILS_DIR		= utils
-UTILS_FILES		= $(UTILS_DIR)/exact_match.c $(UTILS_DIR)/ft_strlen.c $(UTILS_DIR)/exit_handler.c
-UTILS_OBJ		= $(OBJ_DIR)/exact_match.o $(OBJ_DIR)/ft_strlen.o $(UTILS_DIR)/exit_handler.o
-
 
 INCLUDES		= -I ./includes
 
-TOTAL_FILES := $(words $(wildcard $(SOURCES_DIR)/*.c) $(wildcard $(UTILS_DIR)/*.c) $(wildcard $(UTILS_DIR)))
+TOTAL_FILES := $(words $(wildcard $(SOURCES_DIR)/*.c))
 
 COMPILE_COUNT = 0
 
@@ -46,17 +41,12 @@ RESET			= \e[2K\r
 
 all: $(NAME)
 
-$(NAME): $(OBJ) $(UTILS_OBJ)
-	@$(CC) $(CFLAGS) -o $(NAME) $(OBJ) $(UTILS_OBJ) -lreadline 
+$(NAME): $(OBJ)
+	@$(CC) $(CFLAGS) -o $(NAME) $(OBJ) -lreadline 
 	@echo "$(RESET)$(GREEN)Compiled $(NAME)$(RESET_COLOR)"
 
 $(OBJ_DIR)/%.o: $(SOURCES_DIR)/%.c
 	@$(MKDIR) $(OBJ_DIR)
-	@$(CC) $(CFLAGS) -c $< -o $@
-	@$(eval COMPILE_COUNT=$(shell echo $$(($(COMPILE_COUNT)+1))))
-	@echo -n "$(RESET)$(YELLOW)Compiling minishell $$(($(COMPILE_COUNT)*100/$(TOTAL_FILES)))%"
-
-$(OBJ_DIR)/%.o: $(UTILS_DIR)/%.c
 	@$(CC) $(CFLAGS) -c $< -o $@
 	@$(eval COMPILE_COUNT=$(shell echo $$(($(COMPILE_COUNT)+1))))
 	@echo -n "$(RESET)$(YELLOW)Compiling minishell $$(($(COMPILE_COUNT)*100/$(TOTAL_FILES)))%"
