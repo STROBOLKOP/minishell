@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:43 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/11 12:26:25 by elias            ###   ########.fr       */
+/*   Updated: 2024/05/13 18:07:01 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,10 +25,11 @@ int	main(void)
 			exit_handler(errno);
 		if (line && *line)
 		{
+			line = trim_whitespaces(line);
+			printf("%s\n", line);
 			add_history(line);
-			printf("You have entered: %s\n", line);
 		}
-		check_for_builtins(line);
+		// check_for_builtins(line);
 	}
 	return (0);
 }

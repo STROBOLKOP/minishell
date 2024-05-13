@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/11 18:40:32 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/05/13 17:57:30 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@
 size_t	ft_strlen(const char *s);
 bool	exact_match(char *s, char *to_match);
 void	exit_handler(int status);
+int		ft_strlen_whitespace(char *string);
+char	*trim_whitespaces(char *line);
 
 /*	SRC	*/
 int		check_for_builtins(char *string);
