@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := $(MKDF)
 
-CC = cc
+CC = cc -g
 
 #COLORS
 GREEN  := $(shell tput -Txterm setaf 2)
