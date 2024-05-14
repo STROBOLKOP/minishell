@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:43 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/13 18:07:01 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/05/14 15:29:39 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,7 @@ int	main(void)
 	char	*prompt;
 	char	*line;
 
+
 	prompt = "minihell> ";
 	while (1)
 	{
@@ -25,9 +26,9 @@ int	main(void)
 			exit_handler(errno);
 		if (line && *line)
 		{
-			line = trim_whitespaces(line);
 			printf("%s\n", line);
 			add_history(line);
+			tokenizer(line);
 		}
 		// check_for_builtins(line);
 	}
