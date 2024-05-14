@@ -26,7 +26,7 @@ HELP_DOCS = \
 help: ##@other Show this help.
 	@perl -e '$(HELP_DOCS)' $(MAKEFILE_LIST)
 
-all: readline ##@build Compile all the test files.
+all: ${TEST_EXECS} ##@build Compile all the test files.
 
 .PHONY: readline
 readline: readline.c ##@build Compile readline.c testing file.
