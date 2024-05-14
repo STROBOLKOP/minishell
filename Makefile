@@ -41,7 +41,11 @@ token: token.c ##@build Compile token testing file.
 	${CC} $< -o $@
 
 .PHONY: pipex
-pipex: pipex.c libft/libft.a
+pipex: pipex.c libft/libft.a ##@build Compile Elias' pipex project
+	${CC} $< libft/libft.a -o $@
+
+.PHONY: cmds
+cmds: cmds.c libft/libft.a ##@build Compile cmds based on pipex but for minishell
 	${CC} $< libft/libft.a -o $@
 
 libft/libft.a:
