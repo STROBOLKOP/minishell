@@ -46,7 +46,7 @@ bool	exact_match(char *s, char *to_match);
 void	exit_handler(int status);
 int		ft_strlen_whitespace(char *string);
 char	*trim_whitespaces(char *line);
-t_token	*create_token(t_token **head, char *string);
+t_token	*create_token(char *string);
 void		add_token_to_end(t_token **head, t_token *new_token);
 
 /*	SRC	*/
