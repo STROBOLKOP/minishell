@@ -40,6 +40,13 @@ ast: ast.c ##@build Compile Abstract Syntax Tree testing file.
 token: token.c ##@build Compile token testing file.
 	${CC} $< -o $@
 
+.PHONY: pipex
+pipex: pipex.c libft/libft.a
+	${CC} $< libft/libft.a -o $@
+
+libft/libft.a:
+	@make -sC libft
+
 clean: ##@cleaning rm object files (none in this branch)
 
 fclean: clean ##@cleaning run clean then rm built executables
