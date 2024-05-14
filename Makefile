@@ -6,7 +6,7 @@ NAME			= minishell
 
 CC				= cc
 RM				= rm -rf
-CFLAGS			= -Wall -Werror -Wextra -g $(INCLUDES) 
+CFLAGS			= -Wall -Werror -Wextra -g $(INCLUDES)
 
 MKDIR			= mkdir -p
 
@@ -41,24 +41,25 @@ RESET			= \e[2K\r
 
 all: $(NAME)
 
-$(NAME): $(OBJ)
-	@$(CC) $(CFLAGS) -o $(NAME) $(OBJ) -lreadline 
+$(NAME): libft/libft.a $(OBJ)
+	@$(CC) $(CFLAGS) -o $(NAME) $(OBJ) libft/libft.a -lreadline
 	@echo "$(RESET)$(GREEN)Compiled $(NAME)$(RESET_COLOR)"
 
 $(OBJ_DIR)/%.o: $(SOURCES_DIR)/%.c
 	@$(MKDIR) $(OBJ_DIR)
 	@$(CC) $(CFLAGS) -c $< -o $@
 	@$(eval COMPILE_COUNT=$(shell echo $$(($(COMPILE_COUNT)+1))))
-	@echo -n "$(RESET)$(YELLOW)Compiling minishell $$(($(COMPILE_COUNT)*100/$(TOTAL_FILES)))%"
+	@echo -n "$(RESET)[$(YELLOW)$$(($(COMPILE_COUNT)*100/$(TOTAL_FILES)))%] Compiling minishell"
+
+libft/libft.a:
+	@make -sC libft
 
 clean:
-
+	@make fclean -sC libft
 	@$(RM) $(OBJ_DIR)
 	@echo "$(GREEN)Removed the object files from minishell$(RESET_COLOR)"
 
-fclean:
-
-	@$(RM) $(OBJ_DIR)
+fclean: clean
 	@$(RM) $(NAME)
 	@echo "$(GREEN)Removed $(NAME) and the object files$(RESET_COLOR)"
 

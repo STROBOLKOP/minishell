@@ -6,11 +6,12 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:43 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/14 10:44:10 by efret            ###   ########.fr       */
+/*   Updated: 2024/05/14 16:05:14 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
+#include "../libft/incl/libft.h"
 
 int	main(void)
 {
