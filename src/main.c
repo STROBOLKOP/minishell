@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:43 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/14 15:29:39 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/05/15 14:51:39 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ int	main(void)
 		{
 			printf("%s\n", line);
 			add_history(line);
-			tokenizer(line);
+			lexer(line);
 		}
 		// check_for_builtins(line);
 	}

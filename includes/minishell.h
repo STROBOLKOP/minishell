@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/14 15:53:01 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/05/15 14:29:19 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,10 +48,13 @@ int		ft_strlen_whitespace(char *string);
 char	*trim_whitespaces(char *line);
 t_token	*create_token(char *string);
 void		add_token_to_end(t_token **head, t_token *new_token);
+void	print_list(t_token **token);
+int	ft_strjoin_char(char **str, char c);
 
 /*	SRC	*/
 int		check_for_builtins(char *string);
 void	tokenizer(char *line);
+void	lexer(char *line);
 
 /*	BUILTINS	*/
 void	env_builtin(void);

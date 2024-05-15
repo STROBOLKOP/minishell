@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 15:37:56 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/14 21:42:57 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/05/15 20:32:41 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,9 @@ void	tokenizer(char *line)
 
 	head = NULL;
 	add_token_to_end(&head, create_token(line));
-	printf("The value of the first token is: %s\n", head->str);
 	add_token_to_end(&head, create_token("second"));
-	printf("The value of the second token is: %s\n", head->next->str);
 	add_token_to_end(&head, create_token("third"));
-	printf("The value of the third token is: %s\n", head->next->next->str);
+	print_list(&head);	
 }
 
 t_token	*create_token(char *string)
@@ -53,15 +51,15 @@ void	add_token_to_end(t_token **head, t_token *new_token)
 		iter = iter->next;
 	iter->next = new_token;
 }
-/*
+
 void	print_list(t_token **token)
 {
 	while (token)
 	{
-		printf("The value in the node is: %s\n", (*token)->str);
-		if ((*token)->next)
+		printf("The value in the node from the tokenizer is: %s\n", (*token)->str);
+		if ((*token)->next != NULL)
 			*token = (*token)->next;
 		else
-			return ;
+		 break ;
 	}
-}*/
+}
