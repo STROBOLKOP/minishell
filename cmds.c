@@ -66,11 +66,48 @@ typedef struct s_token
 	t_ast_tag		tag;
 }	t_token;
 
+inline static int	get_token_tag(t_list *token_node)
+{
+	t_token	*token;
+
+	token = token_node->content;
+	return (token->tag);
+}
+
+inline static char	*get_token_str(t_list *token_node)
+{
+	t_token *token;
+	
+	token = token_node->content;
+	return (token->str);
+}
+
+inline static char	**get_cmd_av(t_list *cmds)
+{
+	t_cmd	*cmd;
+
+	cmd = cmds->content;
+	return (cmd->cmd_av);
+}
+
+inline static t_redir	*get_cmd_redirs(t_list *cmds)
+{
+	t_cmd	*cmd;
+
+	cmd = cmds->content;
+	return (cmd->redirs);
+}
+
+inline static void	print_token(t_token *token)
+{
+	printf("(%d, %d, %s)", token->depth, token->tag, token->str);
+}
+
 t_token	*create_token(t_token token)
 {
 	t_token	*ret;
 
-	ret = malloc(sizeof(t_ast));
+	ret = malloc(sizeof(t_token));
 	if (ret)
 		*ret = token;
 	return (ret);
@@ -84,6 +121,11 @@ t_ast	*ast_new_node(t_ast ast)
 	if (ret)
 		*ret = ast;
 	return (ret);
+}
+
+void	free_token_node(void *content)
+{
+	return ;
 }
 
 bool	exact_match(char *s, char *to_match)
@@ -138,6 +180,10 @@ void	make_token_list(t_list **tokens)
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
+	node_content = create_token((t_token){"-e", 1, T_CMD});
+	node = ft_lstnew(node_content);
+	ft_lstadd_back(tokens, node);
+
 	node_content = create_token((t_token){"<", 2, T_REDIR});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
@@ -153,93 +199,80 @@ void	make_token_list(t_list **tokens)
 	node_content = create_token((t_token){"cat", 1, T_CMD});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
+
+	node_content = create_token((t_token){"-e", 1, T_CMD});
+	node = ft_lstnew(node_content);
+	ft_lstadd_back(tokens, node);
 }
 
-size_t	count_cmd_av(t_list *tokens)
+size_t	count_pipe_parts(t_list *tokens)
 {
 	size_t	count;
-	t_list	*iter;
 
 	if (!tokens)
 		return (errno = EINVAL, 0);
-	iter = tokens;
-	count = 0;
-	while (iter)
+	if (exact_match(get_token_str(tokens), "|"))
+		return (0);
+	count = 1;
+	while (tokens)
 	{
-		if (exact_match(((t_token *)(iter)->content)->str, "|"))
-			return (count);
-		count++;
-		iter = iter->next;
+		if (exact_match(get_token_str(tokens), "|"))
+		{
+			if (tokens->next && exact_match(get_token_str(tokens->next), "|"))
+				return (errno = EINVAL, 0);
+			count++;
+		}
+		tokens = tokens->next;
 	}
 	return (count);
 }
 
-void	fill_cmd_av(t_list **tokens, char **cmd_av)
+t_list	**make_pipe_part_list(t_list *tokens)
 {
+	t_list	**ret;
+	t_list	*pipe;
+	t_list	*prev;
+	size_t	part_count;
 	size_t	i;
 
+	part_count = count_pipe_parts(tokens);
+	if (errno)
+		exit(1);// error, handle freeing and exit
+	ret = malloc(sizeof(t_list *) * (part_count + 1));
+	if (!ret)
+		return (NULL);
 	i = 0;
-	while (*tokens)
+	ret[i] = tokens;
+	ret[part_count] = NULL;
+	prev = tokens;
+	while (tokens)
 	{
-		if (exact_match(((t_token *)(*tokens)->content)->str, "|"))
-			return ;
-		cmd_av[i] = ((t_token *)(*tokens)->content)->str;
-		i++;
-		(*tokens) = (*tokens)->next;
+		if (exact_match(get_token_str(tokens), "|"))
+		{
+			pipe = tokens;
+			tokens = tokens->next;
+			ret[++i] = tokens;
+			ft_lstdelone(pipe, free_token_node);
+			prev->next = NULL;
+		}
+		prev = tokens;
+		tokens = tokens->next;
 	}
-	cmd_av[i] = NULL;
-}
-
-void	make_cmd_list(t_list **cmds, t_list **tokens)
-{
-	t_cmd	*cmd;
-	char	**cmd_av;
-	size_t	av_count;
-	t_list	redirs;
-
-	while (*tokens)
-	{
-		av_count = count_cmd_av(*tokens);
-		if (errno)
-			exit(1);
-		if (!av_count)
-			return ;
-		cmd_av = malloc(sizeof(char *) * (av_count + 1));
-		cmd = malloc(sizeof(t_cmd));
-		if (errno)
-			exit(1);
-		fill_cmd_av(tokens, cmd_av);
-		if (*tokens)
-			(*tokens) = (*tokens)->next;
-	}
+	return (ret);
 }
 
 void	print_cmd_list(t_list *cmds)
 {
+	t_redir	*iter;
+
 	while (cmds)
 	{
+		printf("Command: ");
+		for (int i = 0; get_cmd_av(cmds)[i]; i++)
+			printf("%s ", get_cmd_av(cmds)[i]);
+		printf("\n");
+		cmds = cmds->next;
 	}
-}
-
-inline static int	get_token_tag(t_list *token_node)
-{
-	t_token	*token;
-
-	token = token_node->content;
-	return (token->tag);
-}
-
-inline static char	*get_token_str(t_list *token_node)
-{
-	t_token *token;
-	
-	token = token_node->content;
-	return (token->str);
-}
-
-inline static void	print_token(t_token *token)
-{
-	printf("(%d, %d, %s)", token->depth, token->tag, token->str);
 }
 
 void	print_token_list(t_list *tokens)
@@ -269,15 +302,29 @@ void	print_token_list(t_list *tokens)
 	printf("\n");
 }
 
+void	print_pipe_parts(t_list	**pipe_parts)
+{
+	size_t	i;
+
+	if (!pipe_parts)
+		return ;
+	i = 0;
+	while (pipe_parts[i])
+		print_token_list(pipe_parts[i++]);
+}
+
 int	main(int ac, char **av)
 {
 	t_list	*tokens;
 	t_list	*cmds;
+	t_list	**pipe_parts;
 
 	tokens = NULL;
+	cmds = NULL;
 	//make_token_list(&tokens, ac, av);
 	make_token_list(&tokens);
-	print_token_list(tokens);
-	make_cmd_list(&cmds, &tokens);
+	//print_token_list(tokens);
+	pipe_parts = make_pipe_part_list(tokens);
+	print_pipe_parts(pipe_parts);
 	return (0);
 }
