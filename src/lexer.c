@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.s19.be>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/15 13:56:40 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/15 20:50:08 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/05/18 15:35:54 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,38 +14,22 @@
 
 void	lexer(char *line)
 {
-	static size_t index;
-	char	*string;
-	
+	t_lexeme lexeme;
+	static int index;
+
 	index = 0;
-	string = NULL;
+	lexeme.lexing_state = START;
+	lexeme.string = NULL;
+	lexeme.head = NULL;
 	while (line && line[index])
 	{
+		update_lexer_state(&lexeme, line, &index);
+		if (lexeme.lexing_state == UNQUOTED)
+			handle_unquoted(&lexeme, line, &index);
 		if (line[index] == 39)
-		{
-			printf("The zero test is: %c\n", line[index]);
-			index++;
-			printf("The first test is: %c\n", line[index]);
-			while (line[index] != 39)
-			{
-				printf("The second test is: %c\n", line[index]);
-				ft_strjoin_char(&string, line[index]);
-				index++;
-			}
-			index++;
-			continue ;
-		}
-		
-		if (line[index] == 32 || line[index] == 9 || line[index] == 10)
-		{
-			
-			index++;
-		}
-		else if ((line[index] >= 'a' && line[index] <= 'z') || (line[index] >= 'A' || line[index] <= 'Z'))
-			ft_strjoin_char(&string, line[index++]);		
-		printf("The string from the lexer is: %s\n", string);
-		
-		tokenizer(string);
+			handle_single_quotes(&lexeme, line, &index);
+		if (lexeme.lexing_state == META)
+			handle_meta_char(&lexeme, line, &index);
 	}
-
+	print_list(&lexeme.head);	
 }

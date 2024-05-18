@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/15 14:29:19 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/05/18 21:46:29 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,17 @@ enum token_type {
     nb 
 };
 
+typedef enum s_lexing_state      t_lexing_state;
+
+enum s_lexing_state {
+	START,
+    UNQUOTED,
+	SQ,
+	DQ,
+	META,
+};
+
+
 /*   STRUCTURES   */
 typedef struct s_token
 {
@@ -38,6 +49,13 @@ typedef struct s_token
 	t_token_type			tag;
 	struct s_token	*next;
 }	t_token;
+
+typedef struct s_lexeme
+{
+	char *string;
+	t_token *head;
+	t_lexing_state lexing_state;
+} t_lexeme;
 
 
 /*	UTILS	*/
@@ -50,11 +68,16 @@ t_token	*create_token(char *string);
 void		add_token_to_end(t_token **head, t_token *new_token);
 void	print_list(t_token **token);
 int	ft_strjoin_char(char **str, char c);
+int	is_meta_character(char c);
 
 /*	SRC	*/
 int		check_for_builtins(char *string);
 void	tokenizer(char *line);
 void	lexer(char *line);
+void	handle_single_quotes(t_lexeme *lexeme, char *line, int *index);
+void	handle_unquoted(t_lexeme *lexeme, char *line, int *index);
+void	update_lexer_state(t_lexeme *lexeme, char *line, int *index);
+void	handle_meta_char(t_lexeme *lexeme, char *line, int *index);
 
 /*	BUILTINS	*/
 void	env_builtin(void);
