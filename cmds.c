@@ -26,13 +26,12 @@ typedef struct s_redir
 {
 	char			*str;
 	int				flags;
-	struct s_redir	*next;
 }			t_redir;
 
 struct s_cmd
 {
 	char	**cmd_av;
-	t_redir	*redirs;
+	t_list	*redirs;
 };
 
 /* Token stuff */
@@ -66,7 +65,7 @@ inline static char	**get_cmd_av(t_list *cmds)
 	return (cmd->cmd_av);
 }
 
-inline static t_redir	*get_cmd_redirs(t_list *cmds)
+inline static t_list	*get_cmd_redirs(t_list *cmds)
 {
 	t_cmd	*cmd;
 
@@ -167,6 +166,22 @@ void	make_token_list(t_list **tokens)
 	ft_lstadd_back(tokens, node);
 
 	node_content = create_token((t_token){"-n", T_CMD});
+	node = ft_lstnew(node_content);
+	ft_lstadd_back(tokens, node);
+
+	node_content = create_token((t_token){">", T_REDIR});
+	node = ft_lstnew(node_content);
+	ft_lstadd_back(tokens, node);
+
+	node_content = create_token((t_token){"OUTFILE", T_REDIR});
+	node = ft_lstnew(node_content);
+	ft_lstadd_back(tokens, node);
+
+	node_content = create_token((t_token){"<", T_REDIR});
+	node = ft_lstnew(node_content);
+	ft_lstadd_back(tokens, node);
+
+	node_content = create_token((t_token){"INFILE2", T_REDIR});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
@@ -279,15 +294,150 @@ t_list	**make_pipe_part_list(t_list *tokens)
 	return (ret);
 }
 
+size_t	count_cmd_av(t_list *tokens)
+{
+	size_t	count;
+
+	count = 0;
+	while (tokens)
+	{
+		if (get_token_tag(tokens) != T_REDIR)
+			count++;
+		tokens = tokens->next;
+	}
+	return (count);
+}
+
+void	add_cmd_node(t_list **cmds, t_cmd *cmd)
+{
+	t_list	*cmd_node;
+
+	cmd_node = ft_lstnew(cmd);
+	if (!cmd_node)
+		exit(1); //error, here we go again.
+	ft_lstadd_back(cmds, cmd_node);
+}
+
+t_cmd	*make_cmd_from_content(char **cmd_av, t_list *redirs)
+{
+	t_cmd	*cmd;
+
+	cmd = malloc(sizeof(t_cmd));
+	if (!cmd)
+		exit(1); // Free them stuff yo.
+	*cmd = (t_cmd){cmd_av, redirs};
+	return (cmd);
+}
+
+void	add_redir_node(t_list **redirs, t_redir *redir)
+{
+	t_list	*redir_node;
+
+	redir_node = ft_lstnew(redir);
+	if (!redir_node)
+		exit(1); // you know the drill
+	ft_lstadd_back(redirs, redir_node);
+}
+
+t_redir	*make_redir_from_content(char *str,int flag)
+{
+	t_redir	*redir;
+
+	redir = malloc(sizeof(t_redir));
+	if (!redir)
+		exit(1);
+	*redir = (t_redir){str, flag};
+	return (redir);
+}
+
+void	add_new_redir_node(t_list **redirs, t_list **tokens)
+{
+	t_redir	*redir;
+	char	*redir_op;
+	char	*redir_name;
+	int		flags;
+
+	redir_op = get_token_str(*tokens);
+	*tokens = (*tokens)->next;
+	redir_name = get_token_str(*tokens);
+	if (exact_match(redir_op, "<"))
+		flags = REDIR_IN;
+	else if (exact_match(redir_op, ">"))
+		flags = REDIR_OUT;
+	else if (exact_match(redir_op, "<<"))
+		flags = REDIR_HERE;
+	else if (exact_match(redir_op, ">>"))
+		flags = REDIR_APND;
+	redir = make_redir_from_content(redir_name, flags);
+	add_redir_node(redirs, redir);
+}
+
+void	fill_cmd_content(char **cmd_av, t_list **redirs, t_list *tokens)
+{
+	size_t	i;
+
+	i = 0;
+	while (tokens)
+	{
+		if (get_token_tag(tokens) != T_REDIR)
+			cmd_av[i++] = get_token_str(tokens);
+		else
+			add_new_redir_node(redirs, &tokens);
+		tokens = tokens->next;
+	}
+}
+
+void	make_cmd_list(t_list **cmds, t_list **pipe_parts)
+{
+	t_cmd	*cmd;
+	t_list	*redirs;
+	char	**cmd_av;
+	size_t	count_av;
+	size_t	i;
+
+	i = 0;
+	while (pipe_parts[i])
+	{
+		redirs = NULL;
+		count_av = count_cmd_av(pipe_parts[i]);
+		if (!count_av)
+			exit(1); // exit because part had only redirect info. Maybe check that when setting the tags?
+		cmd_av = malloc(sizeof(char *) * (count_av + 1));
+		if (!cmd_av)
+			exit(1); // Same stuff here;
+		cmd_av[count_av] = NULL;
+		fill_cmd_content(cmd_av, &redirs, pipe_parts[i]);
+		cmd = make_cmd_from_content(cmd_av, redirs);
+		add_cmd_node(cmds, cmd);
+		i++;
+	}
+}
+
+void	print_redir_list(t_list *redirs)
+{
+	t_redir	*redir;
+
+	while (redirs)
+	{
+		redir = redirs->content;
+		printf("(%d, %s)", redir->flags, redir->str);
+		if (redirs->next)
+			printf(" -> ");
+		redirs = redirs->next;
+	}
+}
+
 void	print_cmd_list(t_list *cmds)
 {
-	t_redir	*iter;
+	int	count;
 
 	while (cmds)
 	{
-		printf("Command: ");
+		count = printf("Command: ");
 		for (int i = 0; get_cmd_av(cmds)[i]; i++)
-			printf("%s ", get_cmd_av(cmds)[i]);
+			count += printf("%s ", get_cmd_av(cmds)[i]);
+		printf("%*sRedirs: ", 30 - count, "");
+		print_redir_list(get_cmd_redirs(cmds));
 		printf("\n");
 		cmds = cmds->next;
 	}
@@ -339,10 +489,10 @@ int	main(int ac, char **av)
 
 	tokens = NULL;
 	cmds = NULL;
-	//make_token_list(&tokens, ac, av);
 	make_token_list(&tokens);
-	//print_token_list(tokens);
 	pipe_parts = make_pipe_part_list(tokens);
 	print_pipe_parts(pipe_parts);
+	make_cmd_list(&cmds, pipe_parts);
+	print_cmd_list(cmds);
 	return (0);
 }
