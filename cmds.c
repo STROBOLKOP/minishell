@@ -10,28 +10,17 @@
 #define REDIR_APND	3L << 2
 #define REDIR_HERE	4L << 3
 
-/* Abstract syntax tree stuff */
-typedef struct s_ast		t_ast;
-typedef enum e_ast_tag		t_ast_tag;
-typedef union u_ast_data	t_ast_data;
-
 typedef struct s_pipe		t_pipe;
 typedef struct s_cmd		t_cmd;
 
-enum e_ast_tag
+typedef enum e_tag
 {
 	T_PIPE,
 	T_CMD,
 	T_ARG,
 	T_REDIR,
 	T_END
-};
-
-struct s_pipe
-{
-	t_ast	*left;
-	t_ast	*right;
-};
+}	t_tag;
 
 typedef struct s_redir
 {
@@ -46,24 +35,11 @@ struct s_cmd
 	t_redir	*redirs;
 };
 
-union u_ast_data
-{
-	t_cmd	ast_cmd;
-	t_pipe	ast_pipe;
-};
-
-struct s_ast
-{
-	t_ast_tag	tag;
-	t_ast_data	data;
-};
-
 /* Token stuff */
 typedef struct s_token
 {
 	char			*str;
-	int				depth;
-	t_ast_tag		tag;
+	t_tag			tag;
 }	t_token;
 
 inline static int	get_token_tag(t_list *token_node)
@@ -100,7 +76,7 @@ inline static t_redir	*get_cmd_redirs(t_list *cmds)
 
 inline static void	print_token(t_token *token)
 {
-	printf("(%d, %d, %s)", token->depth, token->tag, token->str);
+	printf("(%d, %s)", token->tag, token->str);
 }
 
 t_token	*create_token(t_token token)
@@ -110,16 +86,6 @@ t_token	*create_token(t_token token)
 	ret = malloc(sizeof(t_token));
 	if (ret)
 		*ret = token;
-	return (ret);
-}
-
-t_ast	*ast_new_node(t_ast ast)
-{
-	t_ast	*ret;
-
-	ret = malloc(sizeof(t_ast));
-	if (ret)
-		*ret = ast;
 	return (ret);
 }
 
@@ -176,31 +142,63 @@ void	make_token_list(t_list **tokens)
 	t_token	*node_content;
 	t_list	*node;
 
-	node_content = create_token((t_token){"cat", 1, T_CMD});
+	node_content = create_token((t_token){"cat", T_CMD});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){"-e", 1, T_CMD});
+	node_content = create_token((t_token){"-e", T_CMD});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){"<", 2, T_REDIR});
+	node_content = create_token((t_token){"<", T_REDIR});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){"INFILE", 2, T_REDIR});
+	node_content = create_token((t_token){"INFILE", T_REDIR});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){"|", 0, T_PIPE});
+	node_content = create_token((t_token){"|", T_PIPE});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){"cat", 1, T_CMD});
+	node_content = create_token((t_token){"tail", T_CMD});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){"-e", 1, T_CMD});
+	node_content = create_token((t_token){"-n", T_CMD});
+	node = ft_lstnew(node_content);
+	ft_lstadd_back(tokens, node);
+
+	node_content = create_token((t_token){"3", T_CMD});
+	node = ft_lstnew(node_content);
+	ft_lstadd_back(tokens, node);
+
+	node_content = create_token((t_token){"|", T_PIPE});
+	node = ft_lstnew(node_content);
+	ft_lstadd_back(tokens, node);
+
+	node_content = create_token((t_token){"head", T_CMD});
+	node = ft_lstnew(node_content);
+	ft_lstadd_back(tokens, node);
+
+	node_content = create_token((t_token){"-n", T_CMD});
+	node = ft_lstnew(node_content);
+	ft_lstadd_back(tokens, node);
+
+	node_content = create_token((t_token){"5", T_CMD});
+	node = ft_lstnew(node_content);
+	ft_lstadd_back(tokens, node);
+
+	node_content = create_token((t_token){"|", T_PIPE});
+	node = ft_lstnew(node_content);
+	ft_lstadd_back(tokens, node);
+
+	node_content = create_token((t_token){"wc", T_CMD});
+	node = ft_lstnew(node_content);
+	ft_lstadd_back(tokens, node);
+
+	node_content = create_token((t_token){"-l", T_CMD});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 }
@@ -227,11 +225,35 @@ size_t	count_pipe_parts(t_list *tokens)
 	return (count);
 }
 
+void	clean_pipe_part_list(t_list **pipe_parts)
+{
+	t_list	*pipe;
+	t_list	*prev;
+	size_t	i;
+
+	i = 0;
+	while (pipe_parts[i])
+	{
+		prev = pipe_parts[i];
+		pipe = prev->next;
+		while (pipe)
+		{
+			if (exact_match(get_token_str(pipe), "|"))
+			{
+				ft_lstdelone(pipe, free_token_node);
+				prev->next = NULL;
+				break ;
+			}
+			prev = pipe;
+			pipe = pipe->next;
+		}
+		i++;
+	}
+}
+
 t_list	**make_pipe_part_list(t_list *tokens)
 {
 	t_list	**ret;
-	t_list	*pipe;
-	t_list	*prev;
 	size_t	part_count;
 	size_t	i;
 
@@ -244,20 +266,16 @@ t_list	**make_pipe_part_list(t_list *tokens)
 	i = 0;
 	ret[i] = tokens;
 	ret[part_count] = NULL;
-	prev = tokens;
 	while (tokens)
 	{
 		if (exact_match(get_token_str(tokens), "|"))
 		{
-			pipe = tokens;
 			tokens = tokens->next;
 			ret[++i] = tokens;
-			ft_lstdelone(pipe, free_token_node);
-			prev->next = NULL;
 		}
-		prev = tokens;
 		tokens = tokens->next;
 	}
+	clean_pipe_part_list(ret);
 	return (ret);
 }
 
@@ -282,7 +300,7 @@ void	print_token_list(t_list *tokens)
 	if (!tokens)
 		return ;
 	head = tokens;
-	printf("(depth, tag, str)\n\t");
+	printf("(tag, str)\n\t");
 	while (tokens)
 	{
 		print_token(tokens->content);
