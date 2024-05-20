@@ -5,11 +5,6 @@
 #define PIPE_R 0
 #define PIPE_W 1
 
-#define REDIR_IN	1L << 0
-#define REDIR_OUT	2L << 1
-#define REDIR_APND	3L << 2
-#define REDIR_HERE	4L << 3
-
 typedef struct s_pipe		t_pipe;
 typedef struct s_cmd		t_cmd;
 
@@ -27,6 +22,14 @@ typedef struct s_redir
 	char			*str;
 	int				flags;
 }			t_redir;
+
+typedef enum e_redir_type
+{
+	R_IN,
+	R_OUT,
+	R_APND,
+	R_HERE,
+}	t_redir_type;
 
 struct s_cmd
 {
@@ -361,13 +364,13 @@ void	add_new_redir_node(t_list **redirs, t_list **tokens)
 	*tokens = (*tokens)->next;
 	redir_name = get_token_str(*tokens);
 	if (exact_match(redir_op, "<"))
-		flags = REDIR_IN;
+		flags = R_IN;
 	else if (exact_match(redir_op, ">"))
-		flags = REDIR_OUT;
+		flags = R_OUT;
 	else if (exact_match(redir_op, "<<"))
-		flags = REDIR_HERE;
+		flags = R_HERE;
 	else if (exact_match(redir_op, ">>"))
-		flags = REDIR_APND;
+		flags = R_APND;
 	redir = make_redir_from_content(redir_name, flags);
 	add_redir_node(redirs, redir);
 }
