@@ -1,4 +1,5 @@
 #include "./libft/incl/libft.h"
+#include <fcntl.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -84,6 +85,21 @@ inline static t_list	*get_cmd_redirs(t_list *cmds)
 	return (cmd->redirs);
 }
 
+inline static char	*get_redir_str(t_list *redirs)
+{
+	t_redir	*redir;
+
+	redir = redirs->content;
+	return (redir->str);
+}
+
+inline static int	get_redir_flags(t_list *redirs)
+{
+	t_redir	*redir;
+
+	redir = redirs->content;
+	return (redir->flags);
+}
 inline static void	print_token(t_token *token)
 {
 	printf("(%d, %s)", token->tag, token->str);
@@ -160,10 +176,6 @@ void	make_token_list(t_list **tokens)
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){"Makefile", T_CMD});
-	node = ft_lstnew(node_content);
-	ft_lstadd_back(tokens, node);
-
 	node_content = create_token((t_token){"<", T_REDIR});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
@@ -220,7 +232,6 @@ void	make_token_list(t_list **tokens)
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	/*
 	node_content = create_token((t_token){"|", T_PIPE});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
@@ -232,7 +243,14 @@ void	make_token_list(t_list **tokens)
 	node_content = create_token((t_token){"-l", T_CMD});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
-	*/
+
+	node_content = create_token((t_token){">>", T_REDIR});
+	node = ft_lstnew(node_content);
+	ft_lstadd_back(tokens, node);
+
+	node_content = create_token((t_token){"outfile", T_REDIR});
+	node = ft_lstnew(node_content);
+	ft_lstadd_back(tokens, node);
 }
 
 size_t	count_pipe_parts(t_list *tokens)
@@ -481,6 +499,49 @@ static void	ft_get_paths(t_minishell *minishell, char **envp)
 	}
 }
 
+int	open_file(char *name, int flag)
+{
+	int	fd;
+
+	if (flag == R_IN)
+		fd = open(name, O_RDONLY | O_CLOEXEC);
+	else if (flag == R_OUT)
+		fd = open(name, O_WRONLY | O_TRUNC | O_CLOEXEC | O_CREAT, 00666);
+	else if (flag == R_APND)
+		fd = open(name, O_WRONLY | O_APPEND | O_CLOEXEC | O_CREAT, 00666);
+	else
+		exit(1);
+	return (fd);
+}
+
+void	do_redirs(t_list *cmd_node, int	pipe_fd[2])
+{
+	t_list	*redirs;
+	int		fd;
+
+	redirs = get_cmd_redirs(cmd_node);
+	while (redirs)
+	{
+		if (get_redir_flags(redirs) != R_HERE)
+		{
+			fd = open_file(get_redir_str(redirs), get_redir_flags(redirs));
+			if (errno)
+				exit(1);
+			if (get_redir_flags(redirs) == R_IN)
+			{
+				if (dup2(fd, STDIN_FILENO) == -1)
+					exit(1);
+			}
+			else
+			{
+				if (dup2(fd, STDOUT_FILENO) == -1)
+					exit(1);
+			}
+		}
+		redirs = redirs->next;
+	}
+}
+
 void	ft_execve(t_list *cmd_node, int pipe_fd[2], char **envp)
 {
 	t_cmd	*cmd;
@@ -488,8 +549,9 @@ void	ft_execve(t_list *cmd_node, int pipe_fd[2], char **envp)
 	(void)envp;
 	if (cmd_node->next && dup2(pipe_fd[PIPE_W], STDOUT_FILENO) == -1)
 		exit(1);
-	cmd = cmd_node->content;
 	close(pipe_fd[PIPE_W]);
+	do_redirs(cmd_node, pipe_fd);
+	cmd = cmd_node->content;
 	execvp(cmd->cmd_av[0], cmd->cmd_av);
 }
 
