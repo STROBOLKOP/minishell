@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/18 21:52:49 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/05/20 10:33:36 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,9 @@ enum						s_lexing_state
 	UNQUOTED,
 	SQ,
 	DQ,
+	SP,
 	META,
+	DOLLAR,
 };
 
 /*   STRUCTURES   */
@@ -65,11 +67,15 @@ void						exit_handler(int status);
 int							ft_strlen_whitespace(char *string);
 char						*trim_whitespaces(char *line);
 t_token						*create_token(char *string);
-void						add_token_to_end(t_token **head,
-								t_token *new_token);
+void	add_token_to_end(t_token **head,
+						t_token *new_token);
 void						print_list(t_token **token);
 int							ft_strjoin_char(char **str, char c);
 int							is_meta_character(char c);
+int							is_regular_character(char c);
+void						update_lexer_state(t_lexeme *lexeme, char *line,
+								int *index);
+void						reset_lexer_state(t_lexeme *lexeme);
 
 /*	SRC	*/
 int							check_for_builtins(char *string);
@@ -82,6 +88,12 @@ void						handle_unquoted(t_lexeme *lexeme, char *line,
 void						update_lexer_state(t_lexeme *lexeme, char *line,
 								int *index);
 void						handle_meta_char(t_lexeme *lexeme, char *line,
+								int *index);
+void						handle_space(t_lexeme *lexeme, char *line,
+								int *index);
+void						handle_double_quotes(t_lexeme *lexeme, char *line,
+								int *index);
+void						handle_dollar(t_lexeme *lexeme, char *line,
 								int *index);
 
 /*	BUILTINS	*/

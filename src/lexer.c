@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.s19.be>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/15 13:56:40 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/18 15:35:54 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/05/20 09:59:04 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,16 @@ void	lexer(char *line)
 		update_lexer_state(&lexeme, line, &index);
 		if (lexeme.lexing_state == UNQUOTED)
 			handle_unquoted(&lexeme, line, &index);
-		if (line[index] == 39)
+		if (lexeme.lexing_state == SQ)
 			handle_single_quotes(&lexeme, line, &index);
 		if (lexeme.lexing_state == META)
 			handle_meta_char(&lexeme, line, &index);
+		if (lexeme.lexing_state == SP)
+			handle_space(&lexeme, line, &index);
+		if (lexeme.lexing_state == DOLLAR)
+			handle_dollar(&lexeme, line, &index);
+		if (lexeme.lexing_state == DQ)
+			handle_double_quotes(&lexeme, line, &index);
 	}
 	print_list(&lexeme.head);	
 }

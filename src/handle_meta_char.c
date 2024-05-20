@@ -6,52 +6,26 @@
 /*   By: pclaus <pclaus@student.s19.be>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/18 21:31:35 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/18 23:44:26 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/05/20 10:50:33 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
 
-int	is_meta_character(char c)
-{
-	if (c == 124 || c == 38 || c == 59 || c == 40 || c == 41 || c == 60
-		|| c == 62 || c == '\0')
-		return (1);
-	else
-		return (0);
-}
-
-int	is_double_meta_character(char c)
-{
-	if ((c == 124 && c - 1 == 124) || (c == 38 && c - 1 == 38) || (c == 59 && c
-			- 1 == 59) || (c == 40 && c - 1 == 40) || (c == 41 && c - 1 == 41)
-		|| (c == 60 && c - 1 == 60) || (c == 62 && c - 1 == 62))
-		return (1);
-	else
-		return (0);
-}
-
 void	handle_meta_char(t_lexeme *lexeme, char *line, int *index)
 {
+	int	iter;
+
+	iter = 0;
 	while (lexeme->lexing_state == META)
 	{
-		if (line[*index] == 32)
-		{
-			(*index)++;
-			lexeme->lexing_state = START;
-			lexeme->string = NULL;
-			break ;
-		}
 		ft_strjoin_char(&lexeme->string, (line[*index]));
 		(*index)++;
-		
-		if (!is_meta_character(line[*index]))
+		iter++;
+		if (!is_meta_character(line[*index]) || (line[*index] != line[*index
+				- 1]) || iter == 2 || line[*index] == '\0')
 		{
-			if (is_double_meta_character(line[*index]))
-				break ;
-			lexeme->lexing_state = START;
-			add_token_to_end(&lexeme->head, create_token(lexeme->string));
-			lexeme->string = NULL;
+			reset_lexer_state(lexeme);
 			break ;
 		}
 	}

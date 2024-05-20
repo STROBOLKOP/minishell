@@ -11,8 +11,8 @@ CFLAGS			= -Wall -Werror -Wextra -g $(INCLUDES)
 MKDIR			= mkdir -p
 
 SOURCES_DIR		= src
-SOURCES			= $(SOURCES_DIR)/main.c $(SOURCES_DIR)/check_for_builtins.c $(SOURCES_DIR)/exact_match.c $(SOURCES_DIR)/ft_strlen.c $(SOURCES_DIR)/exit_handler.c $(SOURCES_DIR)/env_builtin.c $(SOURCES_DIR)/cd_builtin.c $(SOURCES_DIR)/pwd_builtin.c $(SOURCES_DIR)/trim_whitespaces.c $(SOURCES_DIR)/tokenizer.c $(SOURCES_DIR)/lexer.c $(SOURCES_DIR)/ft_strjoin_char.c $(SOURCES_DIR)/handle_single_quotes.c $(SOURCES_DIR)/handle_meta_char.c
-OBJ				= $(OBJ_DIR)/main.o $(OBJ_DIR)/check_for_builtins.o $(OBJ_DIR)/exact_match.o $(OBJ_DIR)/ft_strlen.o $(OBJ_DIR)/exit_handler.o $(OBJ_DIR)/env_builtin.o $(OBJ_DIR)/cd_builtin.o $(OBJ_DIR)/pwd_builtin.o $(OBJ_DIR)/trim_whitespaces.o $(OBJ_DIR)/tokenizer.o $(OBJ_DIR)/lexer.o $(OBJ_DIR)/ft_strjoin_char.o $(OBJ_DIR)/handle_single_quotes.o $(OBJ_DIR)/handle_meta_char.o
+SOURCES			= $(SOURCES_DIR)/main.c $(SOURCES_DIR)/check_for_builtins.c $(SOURCES_DIR)/exact_match.c $(SOURCES_DIR)/ft_strlen.c $(SOURCES_DIR)/exit_handler.c $(SOURCES_DIR)/env_builtin.c $(SOURCES_DIR)/cd_builtin.c $(SOURCES_DIR)/pwd_builtin.c $(SOURCES_DIR)/trim_whitespaces.c $(SOURCES_DIR)/tokenizer.c $(SOURCES_DIR)/lexer.c $(SOURCES_DIR)/ft_strjoin_char.c $(SOURCES_DIR)/lexer_handler_functions.c $(SOURCES_DIR)/handle_meta_char.c $(SOURCES_DIR)/lexer_utils.c
+OBJ				= $(OBJ_DIR)/main.o $(OBJ_DIR)/check_for_builtins.o $(OBJ_DIR)/exact_match.o $(OBJ_DIR)/ft_strlen.o $(OBJ_DIR)/exit_handler.o $(OBJ_DIR)/env_builtin.o $(OBJ_DIR)/cd_builtin.o $(OBJ_DIR)/pwd_builtin.o $(OBJ_DIR)/trim_whitespaces.o $(OBJ_DIR)/tokenizer.o $(OBJ_DIR)/lexer.o $(OBJ_DIR)/ft_strjoin_char.o $(OBJ_DIR)/lexer_handler_functions.o $(OBJ_DIR)/handle_meta_char.o $(OBJ_DIR)/lexer_utils.o
 OBJ_DIR			= obj
 
 INCLUDES		= -I ./includes
