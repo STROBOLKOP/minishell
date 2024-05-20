@@ -48,6 +48,10 @@ pipex: pipex.c libft/libft.a ##@build Compile Elias' pipex project
 cmds: cmds.c libft/libft.a ##@build Compile cmds based on pipex but for minishell
 	${CC} $< libft/libft.a -o $@
 
+.PHONY: minipipe
+minipipe: minipipe.c libft/libft.a ##@build pipex from list of tokens.
+	${CC} $< libft/libft.a -o $@
+
 libft/libft.a:
 	@make -sC libft
 
