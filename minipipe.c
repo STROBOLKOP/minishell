@@ -117,7 +117,78 @@ t_token	*create_token(t_token token)
 
 void	free_token_node(void *content)
 {
-	return ;
+	t_token	*token;
+
+	token = content;
+	free(token->str);
+	token->str = NULL;
+	free(token);
+}
+bool	exact_match(char *s, char *to_match);
+
+void	free_redir_node(void *content)
+{
+	t_redir	*redir;
+
+	redir = content;
+	free(redir);
+}
+
+void	free_cmd_av(char ***av)
+{
+	size_t	i;
+
+	if (!av || !(*av))
+		return ;
+	i = 0;
+	while ((*av)[i])
+		free((*av)[i++]);
+	free(*av);
+	*av = NULL;
+}
+
+void	free_cmd_node(void *content)
+{
+	t_cmd	*cmd;
+
+	cmd = content;
+	ft_lstclear(&cmd->redirs, free_redir_node);
+	cmd->redirs = NULL;
+	//free_cmd_av(&cmd->cmd_av);
+	free(cmd->cmd_av);
+	cmd->cmd_av = NULL;
+	free(cmd);
+}
+
+void	free_pipe_parts(t_list	***pipe_parts)
+{
+	size_t	i;
+
+	if (!pipe_parts || !(*pipe_parts))
+		return ;
+	i = 0;
+	while ((*pipe_parts)[i])
+		ft_lstclear(&(*pipe_parts)[i++], free_token_node);
+	free(*pipe_parts);
+	*pipe_parts = NULL;
+}
+
+void	free_paths(char ***paths)
+{
+	size_t	i;
+
+	if (!paths || !(*paths))
+		return ;
+	i = 0;
+	while ((*paths)[i])
+		free((*paths)[i++]);
+	free(*paths);
+	*paths = NULL;
+}
+
+void	free_cmds(t_list **cmds)
+{
+	ft_lstclear(cmds, free_cmd_node);
 }
 
 bool	exact_match(char *s, char *to_match)
@@ -168,89 +239,99 @@ void	make_token_list(t_list **tokens)
 	t_token	*node_content;
 	t_list	*node;
 
-	node_content = create_token((t_token){"cat", T_CMD});
+	node_content = create_token((t_token){ft_strdup("cat"), T_CMD});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){"-e", T_CMD});
+	node_content = create_token((t_token){ft_strdup("-e"), T_CMD});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){"<", T_REDIR});
+	node_content = create_token((t_token){ft_strdup("<"), T_REDIR});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){"Makefile", T_REDIR});
+	node_content = create_token((t_token){ft_strdup("Makefile"), T_REDIR});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){"|", T_PIPE});
+	node_content = create_token((t_token){ft_strdup(">"), T_REDIR});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){"tail", T_CMD});
+	node_content = create_token((t_token){ft_strdup("/dev/null"), T_REDIR});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){"-n", T_CMD});
+	/*
+	node_content = create_token((t_token){ft_strdup("|"), T_PIPE});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){">", T_REDIR});
+	node_content = create_token((t_token){ft_strdup("tail"), T_CMD});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){"tail_out", T_REDIR});
+	node_content = create_token((t_token){ft_strdup("-n"), T_CMD});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){"<", T_REDIR});
+	node_content = create_token((t_token){ft_strdup(">"), T_REDIR});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){"README.md", T_REDIR});
+	node_content = create_token((t_token){ft_strdup("tail_out"), T_REDIR});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){"10", T_CMD});
+	node_content = create_token((t_token){ft_strdup("<"), T_REDIR});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){"|", T_PIPE});
+	node_content = create_token((t_token){ft_strdup("README.md"), T_REDIR});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){"head", T_CMD});
+	node_content = create_token((t_token){ft_strdup("10"), T_CMD});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){"-n", T_CMD});
+	node_content = create_token((t_token){ft_strdup("|"), T_PIPE});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){"5", T_CMD});
+	node_content = create_token((t_token){ft_strdup("head"), T_CMD});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){"|", T_PIPE});
+	node_content = create_token((t_token){ft_strdup("-n"), T_CMD});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){"wc", T_CMD});
+	node_content = create_token((t_token){ft_strdup("5"), T_CMD});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){"-l", T_CMD});
+	node_content = create_token((t_token){ft_strdup("|"), T_PIPE});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){">>", T_REDIR});
+	node_content = create_token((t_token){ft_strdup("wc"), T_CMD});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){"wc_out", T_REDIR});
+	node_content = create_token((t_token){ft_strdup("-l"), T_CMD});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
+
+	node_content = create_token((t_token){ft_strdup(">>"), T_REDIR});
+	node = ft_lstnew(node_content);
+	ft_lstadd_back(tokens, node);
+
+	node_content = create_token((t_token){ft_strdup("wc_out"), T_REDIR});
+	node = ft_lstnew(node_content);
+	ft_lstadd_back(tokens, node);
+	*/
 }
 
 size_t	count_pipe_parts(t_list *tokens)
@@ -696,6 +777,8 @@ int	main(int ac, char **av, char **envp)
 	print_paths(minishell.paths);
 	printf("\n\n");
 	ft_run_cmds(&minishell, cmds, envp);
+	free_paths(&minishell.paths);
+	free_cmds(&cmds);
+	free_pipe_parts(&pipe_parts);
 	return (0);
 }
-
