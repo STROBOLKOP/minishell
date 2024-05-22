@@ -200,7 +200,7 @@ void	make_token_list(t_list **tokens)
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){"OUTFILE", T_REDIR});
+	node_content = create_token((t_token){"tail_out", T_REDIR});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
@@ -248,7 +248,7 @@ void	make_token_list(t_list **tokens)
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 
-	node_content = create_token((t_token){"outfile", T_REDIR});
+	node_content = create_token((t_token){"wc_out", T_REDIR});
 	node = ft_lstnew(node_content);
 	ft_lstadd_back(tokens, node);
 }
