@@ -575,8 +575,10 @@ void	ft_run_cmds(t_minishell *minishell, t_list *cmds, char **envp)
 	t_list	*cmd_node;
 	int		pipe_fd[2];
 	int		cpid;
+	int		stdin_copy;
 
 	cmd_node = cmds;
+	stdin_copy = dup(STDIN_FILENO);
 	while (cmd_node)
 	{
 		if (pipe(pipe_fd) == -1)
@@ -593,6 +595,8 @@ void	ft_run_cmds(t_minishell *minishell, t_list *cmds, char **envp)
 		close(pipe_fd[PIPE_R]);
 		cmd_node = cmd_node->next;
 	}
+	if (dup2(stdin_copy, STDIN_FILENO) == -1 || close(stdin_copy))
+		exit(1);
 }
 
 void	print_redir_list(t_list *redirs)
