@@ -6,13 +6,14 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/11 12:08:08 by elias            ###   ########.fr       */
+/*   Updated: 2024/05/23 14:44:03 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
+# include "../libft/incl/libft.h"
 # include <readline/readline.h>
 # include <readline/history.h>
 # include <errno.h>
@@ -22,7 +23,6 @@
 # include <unistd.h>
 
 /*	UTILS	*/
-size_t	ft_strlen(const char *s);
 bool	exact_match(char *s, char *to_match);
 void	exit_handler(int status);
 
