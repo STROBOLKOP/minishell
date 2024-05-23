@@ -10,14 +10,16 @@ CFLAGS			= -Wall -Werror -Wextra -g $(INCLUDES)
 
 MKDIR			= mkdir -p
 
+SOURCE_FILES	= main.c check_for_builtins.c exact_match.c exit_handler.c 
+
 SOURCES_DIR		= src
-SOURCES			= $(SOURCES_DIR)/main.c $(SOURCES_DIR)/check_for_builtins.c $(SOURCES_DIR)/exact_match.c $(SOURCES_DIR)/ft_strlen.c $(SOURCES_DIR)/exit_handler.c 
-OBJ				= $(OBJ_DIR)/main.o $(OBJ_DIR)/check_for_builtins.o $(OBJ_DIR)/exact_match.o $(OBJ_DIR)/ft_strlen.o $(OBJ_DIR)/exit_handler.o
+SOURCES			= $(addprefix $(SOURCES_DIR)/, $(SOURCE_FILES))
 OBJ_DIR			= obj
+OBJ				= $(addprefix $(OBJ_DIR)/, $(notdir $(SOURCES:.c=.o)))
 
 INCLUDES		= -I ./includes
 
-TOTAL_FILES := $(words $(wildcard $(SOURCES_DIR)/*.c))
+TOTAL_FILES := $(words $(SOURCE_FILES))
 
 COMPILE_COUNT = 0
 
