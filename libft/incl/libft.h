@@ -6,7 +6,7 @@
 /*   By: efret <marvin@42.fr>                       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/20 11:51:52 by efret             #+#    #+#             */
-/*   Updated: 2024/04/22 16:09:18 by efret            ###   ########.fr       */
+/*   Updated: 2024/05/23 15:41:34 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,11 @@
 # include <stdarg.h>
 # include <errno.h>
 # include <asm-generic/errno-base.h>
+
+# ifndef VOID
+#  define VOID (void)0
+# endif
+
 # ifndef BUFFER_SIZE
 #  define BUFFER_SIZE 10
 # endif

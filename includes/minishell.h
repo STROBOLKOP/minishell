@@ -6,12 +6,16 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/23 14:44:03 by efret            ###   ########.fr       */
+/*   Updated: 2024/05/23 15:41:22 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MINISHELL_H
 # define MINISHELL_H
+
+# ifndef VOID
+#  define VOID (void)0
+# endif
 
 # include "../libft/incl/libft.h"
 # include <readline/readline.h>
