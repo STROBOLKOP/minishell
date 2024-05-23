@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 15:37:56 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/16 17:26:08 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/05/22 18:21:08 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ void	print_list(t_token **token)
 	int iter;
 
 	iter = 0;
-	while (token != NULL)
+	while (token != NULL && (*token)->str != NULL)
 	{
 		printf("#%d: The value in the node from the tokenizer is: %s\n", iter, (*token)->str);
 		iter++;
