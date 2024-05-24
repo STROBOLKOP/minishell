@@ -10,7 +10,8 @@ CFLAGS			= -Wall -Werror -Wextra -g $(INCLUDES)
 
 MKDIR			= mkdir -p
 
-SOURCE_FILES	= main.c check_for_builtins.c exact_match.c exit_handler.c 
+SOURCE_FILES	= main.c check_for_builtins.c exact_match.c exit_handler.c\
+				  interactive.c
 
 SOURCES_DIR		= src
 SOURCES			= $(addprefix $(SOURCES_DIR)/, $(SOURCE_FILES))

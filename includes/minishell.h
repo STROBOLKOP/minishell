@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/23 15:41:22 by efret            ###   ########.fr       */
+/*   Updated: 2024/05/24 14:46:09 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,9 @@
 # include <stdio.h>
 # include <stdlib.h>
 # include <unistd.h>
+
+/* MAIN LOOP */
+void	interactive(void);
 
 /*	UTILS	*/
 bool	exact_match(char *s, char *to_match);
