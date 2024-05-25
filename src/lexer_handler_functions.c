@@ -6,11 +6,12 @@
 /*   By: pclaus <pclaus@student.s19.be>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 10:20:46 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/23 16:49:02 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/05/25 10:11:04 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
+#include <stdbool.h>
 
 void	handle_single_quotes(t_lexeme *lexeme, char *line, int *index)
 {
@@ -21,7 +22,7 @@ void	handle_single_quotes(t_lexeme *lexeme, char *line, int *index)
 		(*index)++;
 		if (line[*index] == 39)
 		{
-			reset_lexer_state(lexeme);
+			reset_lexer_state(lexeme, START);
 			(*index)++;
 		}
 	}
@@ -34,7 +35,10 @@ void	handle_unquoted(t_lexeme *lexeme, char *line, int *index)
 		ft_strjoin_char(&lexeme->string, (line[*index]));
 		(*index)++;
 		if (!is_regular_character(line[*index]) || (line[*index] == '\0'))
-			reset_lexer_state(lexeme);
+		{
+			reset_lexer_state(lexeme, START);
+			(*index)++;
+		}
 	}
 }
 
@@ -51,31 +55,36 @@ void	handle_space(t_lexeme *lexeme, char *line, int *index)
 void	handle_double_quotes(t_lexeme *lexeme, char *line, int *index)
 {
 	(*index)++;
-	while (lexeme->lexing_state == DQ)
+	while (line[*index] != '\0' && lexeme->lexing_state == DQ)
 	{
 		ft_strjoin_char(&lexeme->string, (line[*index]));
 		(*index)++;
 		if (line[*index] == 34)
 		{
-			lexeme->lexing_state = UNQUOTED;
-			add_token_to_end(&lexeme->head, create_token(lexeme->string));
-			lexeme->string = NULL;
-			break;
+			reset_lexer_state(lexeme, START);
+			(*index)++;
 		}
 	}
-	(*index)++;
 }
 
 void	handle_dollar(t_lexeme *lexeme, char *line, int *index)
 {
+	bool	inside_curly_brackets;
+
+	inside_curly_brackets = false;
 	while (lexeme->lexing_state == DOLLAR)
 	{
-		if (line[*index] == '$' || line[*index] == 63)
+		if (line[*index] == '{')
+			inside_curly_brackets = true;
+		if (line[*index] == '}')
+			inside_curly_brackets = false;
+		if ((line[*index] != 32 && line[*index] != '\0') || (line[*index] == 32
+				&& inside_curly_brackets == true))
 		{
 			ft_strjoin_char(&lexeme->string, (line[*index]));
 			(*index)++;
 		}
 		else
-			reset_lexer_state(lexeme);
+			reset_lexer_state(lexeme, START);
 	}
 }

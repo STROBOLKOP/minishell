@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/23 17:44:36 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/05/25 10:16:27 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,10 +81,11 @@ int							is_meta_character(char c);
 int							is_regular_character(char c);
 void						update_lexer_state(t_lexeme *lexeme, char *line,
 								int *index);
-void						reset_lexer_state(t_lexeme *lexeme,
-								t_lexing_state lexing_state);
+void	reset_lexer_state(t_lexeme *lexeme,
+						t_lexing_state lexing_state);
 int							handle_unexpected_token(char *line, int index,
 								char ascii_code);
+void						free_list(t_token **token);
 
 /*	SRC	*/
 int							check_for_builtins(char *string);
@@ -104,15 +105,6 @@ void						handle_double_quotes(t_lexeme *lexeme, char *line,
 								int *index);
 void						handle_dollar(t_lexeme *lexeme, char *line,
 								int *index);
-void						handle_square_brackets(t_lexeme *lexeme, char *line,
-								int *index);
-void						handle_curly_brackets(t_lexeme *lexeme, char *line,
-								int *index);
-void						handle_parentheses(t_lexeme *lexeme, char *line,
-								int *index);
-void						handle_single_parentheses(t_lexeme *lexeme,
-								char *line, int *index);
-void	handle_single_curly_brackets(t_lexeme *lexeme, char *line, int *index);
 /*	BUILTINS	*/
 void						env_builtin(void);
 void						cd_builtin(void);

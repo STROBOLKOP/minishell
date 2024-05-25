@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 15:37:56 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/22 18:21:08 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/05/25 10:26:20 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,4 +65,19 @@ void	print_list(t_token **token)
 		else
 		 break ;
 	}
+}
+
+void	free_list(t_token **token)
+{
+	t_token *temp;
+
+	while (token != NULL && (*token)->next != NULL)
+	{
+		temp = (*token)->next;
+		printf("The current token is: [[ %s ]] before freeing\n", (*temp).str);
+		free((*token)->str);
+		free(*token);
+		*token = temp;
+	}
+	*token = NULL;
 }

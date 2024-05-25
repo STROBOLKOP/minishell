@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.s19.be>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 10:18:56 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/23 17:24:53 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/05/23 19:40:13 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,17 +24,7 @@ void	update_lexer_state(t_lexeme *lexeme, char *line, int *index)
 		lexeme->lexing_state = META;
 	else if (line[*index] == 36)
 		lexeme->lexing_state = DOLLAR;
-	else if (line[*index] == 91)
-		lexeme->lexing_state = LBRACKET;
-	else if (line[*index] == 93)
-		lexeme->lexing_state = RBRACKET;
-	else if (line[*index] == 123)
-		lexeme->lexing_state = LCBRACKET;
-	else if (line[*index] == 125)
-		lexeme->lexing_state = RCBRACKET;
-	else if (line[*index] == 40)
-		lexeme->lexing_state = LPAR;
-	else
+	else if (is_regular_character(line[*index]))
 		lexeme->lexing_state = UNQUOTED;
 }
 
