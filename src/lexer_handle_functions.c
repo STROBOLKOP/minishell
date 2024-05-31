@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.s19.be>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 10:20:46 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/31 00:15:38 by elias            ###   ########.fr       */
+/*   Updated: 2024/05/31 16:57:00 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ void	handle_unquoted(t_lexeme *lexeme, char *line, int *index)
 		(*index)++;
 		if (is_meta_character(line[*index]))
 			reset_lexer_state(lexeme, START);
-		else if (!is_regular_character(line[*index]) || (line[*index] == '\0'))
+		else if ((!is_regular_character(line[*index]) || (line[*index] == '\0')) && line[*index] != '$')
 		{
 			reset_lexer_state(lexeme, START);
 			if (line[*index] != '\0')
