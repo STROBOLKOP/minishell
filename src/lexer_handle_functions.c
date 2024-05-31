@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.s19.be>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 10:20:46 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/29 18:42:01 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/05/31 00:15:38 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,8 @@ void	handle_unquoted(t_lexeme *lexeme, char *line, int *index)
 		else if (!is_regular_character(line[*index]) || (line[*index] == '\0'))
 		{
 			reset_lexer_state(lexeme, START);
-			(*index)++;
+			if (line[*index] != '\0')
+				(*index)++;
 		}
 	}
 }
