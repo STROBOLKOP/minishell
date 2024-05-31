@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.s19.be>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/15 13:56:40 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/25 10:17:43 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/05/31 16:35:26 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,6 @@ void	lexer(char *line)
 		if (lexeme.lexing_state == DOLLAR)
 			handle_dollar(&lexeme, line, &index);
 	}
-//	print_list(&lexeme.head);
-	free_list(&lexeme.head);
+	print_list(&lexeme.head);
+//	free_list(&lexeme.head);
 }

@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/25 10:16:27 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/05/30 18:32:38 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,10 @@
 # define MINISHELL_H
 
 # include <errno.h>
+# include <limits.h>
 # include <readline/history.h>
 # include <readline/readline.h>
+# include <signal.h>
 # include <stdbool.h>
 # include <stdio.h>
 # include <stdlib.h>
@@ -86,6 +88,8 @@ void	reset_lexer_state(t_lexeme *lexeme,
 int							handle_unexpected_token(char *line, int index,
 								char ascii_code);
 void						free_list(t_token **token);
+void						handle_sigint(void);
+void						handle_sigquit(void);
 
 /*	SRC	*/
 int							check_for_builtins(char *string);

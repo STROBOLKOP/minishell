@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:43 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/15 14:51:39 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/05/30 18:32:55 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@ int	main(void)
 	char	*line;
 
 
+	handle_sigint();
+	handle_sigquit();
 	prompt = "minihell> ";
 	while (1)
 	{
