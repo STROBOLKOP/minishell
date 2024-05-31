@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.s19.be>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/15 13:56:40 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/29 13:42:51 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/05/31 11:23:15 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 void	lexer(char *line)
 {
 	t_lexeme	lexeme;
-	static int	index;
+	int	index;
 
 	index = 0;
 	lexeme.lexing_state = START;
@@ -36,6 +36,8 @@ void	lexer(char *line)
 			handle_space(&lexeme, line, &index);
 		else if (lexeme.lexing_state == DOLLAR)
 			handle_dollar(&lexeme, line, &index);
+		else if (lexeme.lexing_state == START)
+			break ;
 		else
 		 	exit_handler(1);
 	}
