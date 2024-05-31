@@ -12,7 +12,7 @@
 
 #include "../includes/minishell.h"
 
-void	lexer(char *line)
+t_token	*lexer(char *line)
 {
 	t_lexeme	lexeme;
 	int	index;
@@ -44,4 +44,5 @@ void	lexer(char *line)
 	//print_list(&lexeme.head);
 	parser(&lexeme.head);
 //	free_list(&lexeme.head);
+	return (lexeme.head);
 }
