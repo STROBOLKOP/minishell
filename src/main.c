@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:43 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/01 11:30:49 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/01 11:42:12 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ void	non_interactive(char *filename, char **envp)
 		ft_run_cmds(cmds, envp);
 		free_cmds(&cmds);
 		free_tokens(&tokens);
+		free(line);
 		line = get_next_line(file);
 	}
 	exit(0);
