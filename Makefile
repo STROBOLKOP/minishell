@@ -12,7 +12,7 @@ MKDIR			= mkdir -p
 
 SOURCE_FILES	= main.c check_for_builtins.c exact_match.c exit_handler.c \
 				  interactive.c ft_strjoin_char.c handle_meta_char.c \
-				  lexer.c lexer_handle_functions.c lexer_utils.c tokenizer.c \
+				  lexer.c lexer_handler_functions.c lexer_utils.c tokenizer.c \
 				  parser.c cmd_list_utils.c cmd_make_utils.c cmd_free_utils.c \
 				  cmd_execute.c
 
