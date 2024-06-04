@@ -6,7 +6,7 @@
 /*   By: efret <efret@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/24 14:45:03 by efret             #+#    #+#             */
-/*   Updated: 2024/05/31 22:31:37 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/04 19:43:09 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,16 +67,19 @@ void	interactive(char **envp)
 	t_token	*tokens;
 	t_cmd	*cmds;
 
+	handle_sigint();
+	handle_sigquit();
 	prompt = "minihell> ";
 	while (1)
 	{
 		cmds = NULL;
 		line = readline(prompt);
 		if (!line)
-			exit_handler(errno);
+			exit (5);//to handle when control D is entered (= EOT)
 		if (line && *line)
 		{
 			add_history(line);
+
 			printf("You have entered: %s\n", line);
 			tokens = lexer(line);
 			printf("\nIn Interactive\n");
