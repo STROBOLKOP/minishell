@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/31 22:29:28 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/04 16:38:50 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,15 @@ typedef struct s_cmd
 	struct s_cmd	*next;
 }	t_cmd;
 
+typedef struct s_env_var
+{
+	char				*name;
+	char				*value;
+	bool				is_exp;
+	struct s_env_var	*next;
+	struct s_env_var	*prev;
+}	t_env_var;
+
 /* MAIN LOOP */
 void	interactive(char **envp); //probably just have argument be the t_minishell struct
 
@@ -108,6 +117,13 @@ size_t	count_cmd_av(t_token *tokens);
 void	make_cmd_list(t_cmd **cmds, t_token *tokens);
 void	free_cmds(t_cmd **cmds);
 void	ft_run_cmds(t_cmd *cmds, char **envp);
+
+/* ENVIRONMENT VARIABLE */
+t_env_var	*create_env_var(char *name, char *val, bool is_exp);
+void		env_add_back(t_env_var **head, t_env_var *new_node);
+void		env_del_target(t_env_var **head, t_env_var *node);
+t_env_var	*env_search_name(t_env_var *head, char *name);
+void		env_load(t_env_var **head, char **envp);
 
 /*	SRC	*/
 int		check_for_builtins(char *string);
