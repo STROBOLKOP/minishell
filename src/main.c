@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:43 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/05 12:35:27 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/05 14:11:29 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,7 @@ void	load_rc(char *filename, char **envp)
 		free(line);
 		line = get_next_line(file);
 	}
+	close(file);
 }
 
 void	shell_init(t_minishell *shell, char **envp)
