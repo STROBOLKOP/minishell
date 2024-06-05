@@ -6,25 +6,25 @@
 /*   By: elias <efret@student.19.be>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 13:39:36 by elias             #+#    #+#             */
-/*   Updated: 2024/06/04 16:40:37 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/05 10:16:01 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
 
-t_env_var	*create_env_var(char *name, char *val, bool is_exp)
+t_var	*create_env_var(char *name, char *val, bool is_exp)
 {
-	t_env_var *var;
+	t_var	*var;
 
-	var = malloc(sizeof(t_env_var));
+	var = malloc(sizeof(t_var));
 	if (var)
-		*var = (t_env_var){name, val, is_exp, NULL, NULL};
+		*var = (t_var){name, val, is_exp, NULL, NULL};
 	return (var);
 }
 
-void	env_add_back(t_env_var **head, t_env_var *new_node)
+void	env_add_back(t_var **head, t_var *new_node)
 {
-	t_env_var	*iter;
+	t_var	*iter;
 
 	if (!head)
 		return (errno = EINVAL, (void)0);
@@ -37,10 +37,10 @@ void	env_add_back(t_env_var **head, t_env_var *new_node)
 	new_node->prev = iter;
 }
 
-void	env_del_target(t_env_var **head, t_env_var *node)
+void	env_del_target(t_var **head, t_var *node)
 {
-	t_env_var	*next;
-	t_env_var	*prev;
+	t_var	*next;
+	t_var	*prev;
 
 	if (!node)
 		return ;
@@ -56,9 +56,9 @@ void	env_del_target(t_env_var **head, t_env_var *node)
 	free(node);
 }
 
-t_env_var	*env_search_name(t_env_var *head, char *name)
+t_var	*env_search_name(t_var *head, char *name)
 {
-	t_env_var	*iter;
+	t_var	*iter;
 
 	if (!name)
 		return (NULL);

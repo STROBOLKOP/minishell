@@ -6,15 +6,15 @@
 /*   By: elias <efret@student.19.be>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 14:36:12 by elias             #+#    #+#             */
-/*   Updated: 2024/06/04 16:43:28 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/05 10:16:37 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
 
-void	print_env(t_env_var *head)
+void	print_env(t_var *head)
 {
-	t_env_var	*last;
+	t_var	*last;
 
 	last = head;
 	while (head)
@@ -34,12 +34,12 @@ void	print_env(t_env_var *head)
 	*/
 }
 
-void	env_add_var(t_env_var **head, char *token)
+void	env_add_var(t_var **head, char *token)
 {
-	char		*name;
-	char		*val;
-	char		*equal_sign;
-	t_env_var	*node;
+	char	*name;
+	char	*val;
+	char	*equal_sign;
+	t_var	*node;
 
 	//should search first, so its value should be changed
 	name = strdup(token);
@@ -56,12 +56,12 @@ void	env_add_var(t_env_var **head, char *token)
 	env_add_back(head, node);
 }
 
-void	env_load(t_env_var **head, char **envp)
+void	env_load(t_var **head, char **envp)
 {
-	char		*name;
-	char		*val;
-	char		*equal_sign;
-	t_env_var	*node;
+	char	*name;
+	char	*val;
+	char	*equal_sign;
+	t_var	*node;
 
 	while (*envp)
 	{

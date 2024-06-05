@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:43 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/04 15:10:52 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/05 10:13:28 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ int	main(int ac, char **av, char **envp)
 	*/
 	(void)ac;
 	(void)av;
-	t_env_var	*env_list;
+	t_var	*env_list;
 	env_load(&env_list, envp);
 	return (0);
 }
