@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/31 22:29:28 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/04 19:05:18 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,5 +121,7 @@ void	handle_space(t_lexeme *lexeme, char *line, int *index);
 void	handle_double_quotes(t_lexeme *lexeme, char *line, int *index);
 void	handle_dollar(t_lexeme *lexeme, char *line, int *index);
 void	parser(t_token **token);
-
+void	handle_sigint(void);
+void	handle_sigquit(void);
+void handle_eof(char *line, int index);
 #endif
