@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/04 19:05:18 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/06/05 16:13:32 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,11 @@
 # include <fcntl.h>
 # include <sys/wait.h>
 
-#define PIPE_R 0
-#define PIPE_W 1
+# define PIPE_R 0
+# define PIPE_W 1
+
+# define SH_INTR 1
+# define SH_CMD	2
 
 typedef enum e_token_type
 {
@@ -83,6 +86,29 @@ typedef struct s_cmd
 	struct s_cmd	*next;
 }	t_cmd;
 
+typedef struct s_var
+{
+	char				*name;
+	char				*value;
+	bool				is_exp;
+	struct s_var	*next;
+	struct s_var	*prev;
+}	t_var;
+
+typedef struct s_minishell
+{
+	t_var	*env;
+}	t_minishell;
+
+typedef struct s_shell_stats
+{
+	int	cmd_pid;
+	int	prev_exit;
+	int	stat_flags;
+}	t_shell_stats;
+
+extern t_shell_stats	shell_stats;
+
 /* MAIN LOOP */
 void	interactive(char **envp); //probably just have argument be the t_minishell struct
 
@@ -108,6 +134,15 @@ size_t	count_cmd_av(t_token *tokens);
 void	make_cmd_list(t_cmd **cmds, t_token *tokens);
 void	free_cmds(t_cmd **cmds);
 void	ft_run_cmds(t_cmd *cmds, char **envp);
+
+/* ENVIRONMENT VARIABLE */
+t_var	*create_env_var(char *name, char *val, bool is_exp);
+void	env_add_back(t_var **head, t_var *new_node);
+void	env_del_target(t_var **head, t_var *node);
+t_var	*env_search_name(t_var *head, char *name);
+void	env_load(t_var **head, char **envp);
+void	env_add_var(t_var **head, char *token);
+void	print_env(t_var *head);
 
 /*	SRC	*/
 int		check_for_builtins(char *string);

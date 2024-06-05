@@ -6,7 +6,7 @@
 /*   By: efret <efret@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/24 14:45:03 by efret             #+#    #+#             */
-/*   Updated: 2024/06/05 13:42:09 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/06/05 16:14:05 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,9 +69,12 @@ void	interactive(char **envp)
 
 	handle_sigint();
 	handle_sigquit();
-	prompt = "minihell> ";
 	while (1)
 	{
+		if (shell_stats.prev_exit)
+			prompt = "\033[31m->\033[0m minishell> ";
+		else
+			prompt = "\033[32m->\033[0m minishell> ";
 		cmds = NULL;
 		line = readline(prompt);
 		if (!line)
