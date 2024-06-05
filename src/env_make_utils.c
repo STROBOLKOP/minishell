@@ -6,7 +6,7 @@
 /*   By: elias <efret@student.19.be>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 14:36:12 by elias             #+#    #+#             */
-/*   Updated: 2024/06/05 10:16:37 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/05 10:58:32 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,24 +14,11 @@
 
 void	print_env(t_var *head)
 {
-	t_var	*last;
-
-	last = head;
 	while (head)
 	{
-		last = head;
-		printf("%sNAME:\t%s\n%sVALUE:\t%s\n%s", "\033[33m", head->name, "\033[32m", head->value, "\033[0m");
+		printf("%sNAME:\t%s\n%sVALUE:\t%s%s\n", "\033[33m", head->name, "\033[32m", head->value, "\033[0m");
 		head = head->next;
 	}
-	(void)last;
-	/*
-	head = last;
-	while (head)
-	{
-		printf("%sNAME:\t%s\n%sVALUE:\t%s\n%s", "\033[33m", head->name, "\033[32m", head->value, "\033[0m");
-		head = head->prev;
-	}
-	*/
 }
 
 void	env_add_var(t_var **head, char *token)
@@ -79,12 +66,4 @@ void	env_load(t_var **head, char **envp)
 		env_add_back(head, node);
 		envp++;
 	}
-
-	// just some testing
-	env_add_var(head, "VAR=value bro");
-	env_add_var(head, "VAR2=and another one");
-	print_env(*head);
-	printf("\n\n");
-	env_del_target(head, env_search_name(*head, "VAR"));
-	print_env(*head);
 }

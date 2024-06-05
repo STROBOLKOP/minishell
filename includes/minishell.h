@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/05 10:12:56 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/05 11:33:56 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,8 +24,11 @@
 # include <fcntl.h>
 # include <sys/wait.h>
 
-#define PIPE_R 0
-#define PIPE_W 1
+# define PIPE_R 0
+# define PIPE_W 1
+
+# define SH_INTR 1
+# define SH_CMD	2
 
 typedef enum e_token_type
 {
@@ -92,6 +95,20 @@ typedef struct s_var
 	struct s_var	*prev;
 }	t_var;
 
+typedef struct s_minishell
+{
+	t_var	*env;
+}	t_minishell;
+
+typedef struct s_shell_stats
+{
+	int	cmd_pid;
+	int	prev_exit;
+	int	stat_flags;
+}	t_shell_stats;
+
+extern t_shell_stats	shell_stats;
+
 /* MAIN LOOP */
 void	interactive(char **envp); //probably just have argument be the t_minishell struct
 
@@ -124,6 +141,8 @@ void	env_add_back(t_var **head, t_var *new_node);
 void	env_del_target(t_var **head, t_var *node);
 t_var	*env_search_name(t_var *head, char *name);
 void	env_load(t_var **head, char **envp);
+void	env_add_var(t_var **head, char *token);
+void	print_env(t_var *head);
 
 /*	SRC	*/
 int		check_for_builtins(char *string);

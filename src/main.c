@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:43 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/05 10:13:28 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/05 10:58:22 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,20 +61,21 @@ void	load_rc(char *filename, char **envp)
 	}
 }
 
+void	shell_init(t_minishell *shell, char **envp)
+{
+	env_load(&shell->env, envp);
+}
+
 int	main(int ac, char **av, char **envp)
 {
-	/*
+	t_minishell	shell;
+
+	shell_init(&shell, envp);
 	if (ac == 2)
 		non_interactive(av[1], envp);
 	if (ac > 2)
 		exit_handler(0);
-	(void)av;
 	load_rc(".minishellrc", envp);
 	interactive(envp);
-	*/
-	(void)ac;
-	(void)av;
-	t_var	*env_list;
-	env_load(&env_list, envp);
 	return (0);
 }
