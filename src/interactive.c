@@ -6,7 +6,7 @@
 /*   By: efret <efret@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/24 14:45:03 by efret             #+#    #+#             */
-/*   Updated: 2024/06/04 19:43:09 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/06/05 13:42:09 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ void	interactive(char **envp)
 		cmds = NULL;
 		line = readline(prompt);
 		if (!line)
-			exit (5);//to handle when control D is entered (= EOT)
+			exit_handler(errno);//to handle when control D is entered (= EOT)
 		if (line && *line)
 		{
 			add_history(line);
