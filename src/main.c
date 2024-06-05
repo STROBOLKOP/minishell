@@ -6,11 +6,13 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:43 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/05 10:58:22 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/05 12:35:27 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
+
+t_shell_stats	shell_stats;
 
 void	non_interactive(char *filename, char **envp)
 {
@@ -64,6 +66,7 @@ void	load_rc(char *filename, char **envp)
 void	shell_init(t_minishell *shell, char **envp)
 {
 	env_load(&shell->env, envp);
+	memset(&shell_stats, 0, sizeof(t_shell_stats));
 }
 
 int	main(int ac, char **av, char **envp)

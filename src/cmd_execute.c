@@ -6,7 +6,7 @@
 /*   By: elias <efret@student.19.be>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/31 22:08:47 by elias             #+#    #+#             */
-/*   Updated: 2024/05/31 22:34:37 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/05 12:40:12 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,11 +76,14 @@ void	ft_wait(void)
 	wait(&wstat);
 	if (WIFEXITED(wstat))
 	{
+		shell_stats.prev_exit = WEXITSTATUS(wstat);
+		/*
 		if (WEXITSTATUS(wstat) != 0)
 		{
 			errno = WEXITSTATUS(wstat);
 			exit_handler(errno); // instead of exit, should change variable, and continue to run minishell process
 		}
+		*/
 	}
 }
 
