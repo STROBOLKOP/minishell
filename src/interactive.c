@@ -84,7 +84,6 @@ void	interactive(char **envp)
 			add_history(line);
 
 			printf("You have entered: %s\n", line);
-			check_for_builtins(line, envp);
 			tokens = lexer(line);
 			printf("\nIn Interactive\n");
 			disp_tokens(tokens);
