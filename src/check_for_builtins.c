@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 19:40:59 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/11 12:38:05 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/06 22:23:59 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,4 +29,9 @@ int	check_for_builtins(char *string)
 	else if (exact_match(string, "exit"))
 		printf("You have entered the EXIT builtin\n");
 	return (0);
+}
+
+void	builtin_end(void)
+{
+
 }
