@@ -6,15 +6,15 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:43 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/05 14:11:29 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/06 19:49:31 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
 
-t_shell_stats	shell_stats;
+t_shell_stats	g_shell_stats;
 
-void	non_interactive(char *filename, char **envp)
+void	non_interactive(char *filename, t_minishell *shell)
 {
 	int		file;
 	char	*line;
@@ -30,7 +30,7 @@ void	non_interactive(char *filename, char **envp)
 		cmds = NULL;
 		tokens = lexer(line);
 		make_cmd_list(&cmds, tokens);
-		ft_run_cmds(cmds, envp);
+		ft_run_cmds(cmds, shell);
 		free_cmds(&cmds);
 		free_tokens(&tokens);
 		free(line);
@@ -39,7 +39,7 @@ void	non_interactive(char *filename, char **envp)
 	exit(0);
 }
 
-void	load_rc(char *filename, char **envp)
+void	load_rc(char *filename, t_minishell *shell)
 {
 	int		file;
 	char	*line;
@@ -55,7 +55,7 @@ void	load_rc(char *filename, char **envp)
 		cmds = NULL;
 		tokens = lexer(line);
 		make_cmd_list(&cmds, tokens);
-		ft_run_cmds(cmds, envp);
+		ft_run_cmds(cmds, shell);
 		free_cmds(&cmds);
 		free_tokens(&tokens);
 		free(line);
@@ -67,7 +67,7 @@ void	load_rc(char *filename, char **envp)
 void	shell_init(t_minishell *shell, char **envp)
 {
 	env_load(&shell->env, envp);
-	memset(&shell_stats, 0, sizeof(t_shell_stats));
+	memset(&g_shell_stats, 0, sizeof(t_shell_stats));
 }
 
 int	main(int ac, char **av, char **envp)
@@ -76,10 +76,10 @@ int	main(int ac, char **av, char **envp)
 
 	shell_init(&shell, envp);
 	if (ac == 2)
-		non_interactive(av[1], envp);
+		non_interactive(av[1], &shell);
 	if (ac > 2)
 		exit_handler(0);
-	load_rc(".minishellrc", envp);
-	interactive(envp);
+	load_rc(".minishellrc", &shell);
+	interactive(&shell);
 	return (0);
 }

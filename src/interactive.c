@@ -6,7 +6,7 @@
 /*   By: efret <efret@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/24 14:45:03 by efret             #+#    #+#             */
-/*   Updated: 2024/06/05 16:14:05 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/06 19:49:43 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ static void	print_cmd_list(t_cmd *cmds)
 	}
 }
 
-void	interactive(char **envp)
+void	interactive(t_minishell *shell)
 {
 	char	*prompt;
 	char	*line;
@@ -71,7 +71,7 @@ void	interactive(char **envp)
 	handle_sigquit();
 	while (1)
 	{
-		if (shell_stats.prev_exit)
+		if (g_shell_stats.prev_exit)
 			prompt = "\033[31m->\033[0m minishell> ";
 		else
 			prompt = "\033[32m->\033[0m minishell> ";
@@ -91,7 +91,7 @@ void	interactive(char **envp)
 			printf("\nCommand list\n");
 			print_cmd_list(cmds);
 			printf("\nCommand output:\n");
-			ft_run_cmds(cmds, envp);
+			ft_run_cmds(cmds, shell);
 			free_cmds(&cmds);
 			free_tokens(&tokens);
 		}

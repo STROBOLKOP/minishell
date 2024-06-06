@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/05 16:13:32 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/06 19:46:11 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,9 +88,9 @@ typedef struct s_cmd
 
 typedef struct s_var
 {
-	char				*name;
-	char				*value;
-	bool				is_exp;
+	char			*name;
+	char			*value;
+	bool			is_exp;
 	struct s_var	*next;
 	struct s_var	*prev;
 }	t_var;
@@ -107,10 +107,10 @@ typedef struct s_shell_stats
 	int	stat_flags;
 }	t_shell_stats;
 
-extern t_shell_stats	shell_stats;
+extern t_shell_stats	g_shell_stats;
 
 /* MAIN LOOP */
-void	interactive(char **envp); //probably just have argument be the t_minishell struct
+void	interactive(t_minishell *shell);
 
 /*	UTILS	*/
 bool	exact_match(char *s, char *to_match);
@@ -133,7 +133,7 @@ void	free_tokens(t_token **tokens);
 size_t	count_cmd_av(t_token *tokens);
 void	make_cmd_list(t_cmd **cmds, t_token *tokens);
 void	free_cmds(t_cmd **cmds);
-void	ft_run_cmds(t_cmd *cmds, char **envp);
+void	ft_run_cmds(t_cmd *cmds, t_minishell *shell);
 
 /* ENVIRONMENT VARIABLE */
 t_var	*create_env_var(char *name, char *val, bool is_exp);
@@ -158,5 +158,5 @@ void	handle_dollar(t_lexeme *lexeme, char *line, int *index);
 void	parser(t_token **token);
 void	handle_sigint(void);
 void	handle_sigquit(void);
-void handle_eof(char *line, int index);
+void	handle_eof(char *line, int index);
 #endif

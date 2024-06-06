@@ -6,7 +6,7 @@
 /*   By: elias <efret@student.19.be>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/31 22:08:47 by elias             #+#    #+#             */
-/*   Updated: 2024/06/05 12:40:12 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/06 19:53:49 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,9 +57,9 @@ void	do_redirs(t_cmd *cmd, int pipe_fd[2])
 	}
 }
 
-void	ft_execve(t_cmd *cmd, int pipe_fd[2], char **envp)
+void	ft_execve(t_cmd *cmd, int pipe_fd[2], t_minishell *shell)
 {
-	(void)envp;
+	(void)shell;
 	if (cmd->next && dup2(pipe_fd[PIPE_W], STDOUT_FILENO) == -1)
 		exit_handler(1); // error
 	close(pipe_fd[PIPE_W]);
@@ -68,7 +68,6 @@ void	ft_execve(t_cmd *cmd, int pipe_fd[2], char **envp)
 	exit_handler(1); // reached if execve (execpv) had an error.
 }
 
-/* Currently exits with error if child did, but should instead just set a variable in the minishell struct */
 void	ft_wait(void)
 {
 	int	wstat;
@@ -76,7 +75,7 @@ void	ft_wait(void)
 	wait(&wstat);
 	if (WIFEXITED(wstat))
 	{
-		shell_stats.prev_exit = WEXITSTATUS(wstat);
+		g_shell_stats.prev_exit = WEXITSTATUS(wstat);
 		/*
 		if (WEXITSTATUS(wstat) != 0)
 		{
@@ -87,7 +86,7 @@ void	ft_wait(void)
 	}
 }
 
-void	ft_run_cmds(t_cmd *cmds, char **envp)
+void	ft_run_cmds(t_cmd *cmds, t_minishell *shell)
 {
 	int	pipe_fd[2];
 	int	cpid;
@@ -102,7 +101,7 @@ void	ft_run_cmds(t_cmd *cmds, char **envp)
 		if (cpid == -1)
 			exit_handler(1);
 		if (!cpid)
-			ft_execve(cmds, pipe_fd, envp);
+			ft_execve(cmds, pipe_fd, shell);
 		close(pipe_fd[PIPE_W]);
 		if (dup2(pipe_fd[PIPE_R], STDIN_FILENO) == -1)
 			exit_handler(1);
