@@ -64,6 +64,8 @@ void	ft_execve(t_cmd *cmd, int pipe_fd[2], char **envp)
 		exit_handler(1); // error
 	close(pipe_fd[PIPE_W]);
 	do_redirs(cmd, pipe_fd);
+	check_for_builtins(cmd->cmd_av[0], envp);
+
 	execvp(cmd->cmd_av[0], cmd->cmd_av);
 	exit_handler(1); // reached if execve (execpv) had an error.
 }
