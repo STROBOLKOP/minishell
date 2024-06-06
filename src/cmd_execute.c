@@ -6,7 +6,7 @@
 /*   By: elias <efret@student.19.be>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/31 22:08:47 by elias             #+#    #+#             */
-/*   Updated: 2024/05/31 22:34:37 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/05 20:29:53 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,8 @@ void	ft_execve(t_cmd *cmd, int pipe_fd[2], char **envp)
 		exit_handler(1); // error
 	close(pipe_fd[PIPE_W]);
 	do_redirs(cmd, pipe_fd);
+	check_for_builtins(cmd->cmd_av[0], envp);
+
 	execvp(cmd->cmd_av[0], cmd->cmd_av);
 	exit_handler(1); // reached if execve (execpv) had an error.
 }

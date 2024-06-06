@@ -6,7 +6,7 @@
 /*   By: efret <efret@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/24 14:45:03 by efret             #+#    #+#             */
-/*   Updated: 2024/06/05 13:42:09 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/06/05 14:36:07 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,7 @@ void	interactive(char **envp)
 			add_history(line);
 
 			printf("You have entered: %s\n", line);
+			check_for_builtins(line, envp);
 			tokens = lexer(line);
 			printf("\nIn Interactive\n");
 			disp_tokens(tokens);
