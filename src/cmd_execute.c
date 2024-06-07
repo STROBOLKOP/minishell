@@ -6,7 +6,7 @@
 /*   By: elias <efret@student.19.be>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/31 22:08:47 by elias             #+#    #+#             */
-/*   Updated: 2024/06/06 19:53:49 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/07 19:32:18 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,12 +59,16 @@ void	do_redirs(t_cmd *cmd, int pipe_fd[2])
 
 void	ft_execve(t_cmd *cmd, int pipe_fd[2], t_minishell *shell)
 {
-	(void)shell;
+	char	*cmd_path;
+
 	if (cmd->next && dup2(pipe_fd[PIPE_W], STDOUT_FILENO) == -1)
 		exit_handler(1); // error
 	close(pipe_fd[PIPE_W]);
 	do_redirs(cmd, pipe_fd);
-	execvp(cmd->cmd_av[0], cmd->cmd_av);
+	cmd_path = cmd_find_path(cmd->cmd_av[0], shell->env);
+	if (!cmd_path)
+		(printf("CMD NOT FOUND\n"), exit_handler(1));
+	execve(cmd_path, cmd->cmd_av, shell->export_env);
 	exit_handler(1); // reached if execve (execpv) had an error.
 }
 

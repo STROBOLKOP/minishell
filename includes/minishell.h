@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/06 19:46:11 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/07 18:51:46 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -98,6 +98,7 @@ typedef struct s_var
 typedef struct s_minishell
 {
 	t_var	*env;
+	char	**export_env;
 }	t_minishell;
 
 typedef struct s_shell_stats
@@ -134,6 +135,7 @@ size_t	count_cmd_av(t_token *tokens);
 void	make_cmd_list(t_cmd **cmds, t_token *tokens);
 void	free_cmds(t_cmd **cmds);
 void	ft_run_cmds(t_cmd *cmds, t_minishell *shell);
+char	*cmd_find_path(char *cmd_name, t_var *env_list);
 
 /* ENVIRONMENT VARIABLE */
 t_var	*create_env_var(char *name, char *val, bool is_exp);
@@ -143,6 +145,7 @@ t_var	*env_search_name(t_var *head, char *name);
 void	env_load(t_var **head, char **envp);
 void	env_add_var(t_var **head, char *token);
 void	print_env(t_var *head);
+char	**make_export_envp(t_var *env_list);
 
 /*	SRC	*/
 int		check_for_builtins(char *string);
