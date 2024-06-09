@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/07 18:51:46 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/09 21:12:12 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,9 @@ typedef struct s_lexeme
 typedef struct s_redir
 {
 	char			*str;
+	int				fd;
 	int				flags;
+	bool			is_fd;
 	struct s_redir	*next;
 }	t_redir;
 
