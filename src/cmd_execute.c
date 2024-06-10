@@ -6,7 +6,7 @@
 /*   By: elias <efret@student.19.be>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/31 22:08:47 by elias             #+#    #+#             */
-/*   Updated: 2024/06/06 19:53:49 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/10 18:55:52 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,13 +59,14 @@ void	do_redirs(t_cmd *cmd, int pipe_fd[2])
 
 void	ft_execve(t_cmd *cmd, int pipe_fd[2], t_minishell *shell)
 {
-	(void)shell;
+	//(void)shell;
 	if (cmd->next && dup2(pipe_fd[PIPE_W], STDOUT_FILENO) == -1)
 		exit_handler(1); // error
 	close(pipe_fd[PIPE_W]);
 	do_redirs(cmd, pipe_fd);
-	execvp(cmd->cmd_av[0], cmd->cmd_av);
-	exit_handler(1); // reached if execve (execpv) had an error.
+	check_for_builtins(cmd->cmd_av, &shell->env);
+	execvp(cmd->cmd_av[0], cmd->cmd_av);//uncomment before merging
+	exit_handler(1); // reached if execve (execpv) had an error.//uncomment before merging
 }
 
 void	ft_wait(void)
