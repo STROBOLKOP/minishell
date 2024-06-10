@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/06 19:46:11 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/10 18:25:11 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,6 +112,15 @@ extern t_shell_stats	g_shell_stats;
 /* MAIN LOOP */
 void	interactive(t_minishell *shell);
 
+/*	BUILTINS	*/
+int	builtin_env(t_var **env);
+int	builtin_pwd(t_var *env);
+int	builtin_cd(t_var *env);
+int	builtin_echo(char **strings_to_echo);
+void	builtin_unset(t_var *env, char *var_to_delete);
+void	builtin_export(t_var **env, char *name_to_export, char *value_to_export);
+void	builtin_exit(void);
+
 /*	UTILS	*/
 bool	exact_match(char *s, char *to_match);
 void	exit_handler(int status);
@@ -145,7 +154,7 @@ void	env_add_var(t_var **head, char *token);
 void	print_env(t_var *head);
 
 /*	SRC	*/
-int		check_for_builtins(char *string);
+int	check_for_builtins(char **string_av, t_var **env);
 void	tokenizer(char *line);
 t_token	*lexer(char *line);
 void	handle_single_quotes(t_lexeme *lexeme, char *line, int *index);
