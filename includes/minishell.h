@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/11 15:10:37 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/11 18:58:10 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,6 +145,8 @@ void	free_tokens(t_token **tokens);
 size_t	count_cmd_av(t_token *tokens);
 void	make_cmd_list(t_cmd **cmds, t_token *tokens);
 void	free_cmds(t_cmd **cmds);
+void	do_redirs(t_cmd *cmd);
+void	close_redirs(t_cmd *cmd);
 void	ft_run_cmds(t_cmd *cmds, t_minishell *shell);
 char	*cmd_find_path(char *cmd_name, t_var *env_list);
 
@@ -159,7 +161,7 @@ void	print_env(t_var *head);
 char	**make_export_envp(t_var *env_list);
 
 /*	SRC	*/
-int		check_for_builtins(char **string_av, t_var **env);
+int		check_for_builtins(t_cmd *cmd, t_var **env, int pipe_fd[2]);
 void	tokenizer(char *line);
 t_token	*lexer(char *line);
 void	handle_single_quotes(t_lexeme *lexeme, char *line, int *index);

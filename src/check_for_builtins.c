@@ -6,29 +6,98 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 19:40:59 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/11 12:04:34 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/06/11 19:24:59 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
 #include <unistd.h>
 
-int	check_for_builtins(char **string_av, t_var **env)
+// Need t_cma *cmd to know if the output needs to be redirected.
+// before doing the actual builtin stuff, redir fds.
+// After doing the actual builting stuff, prepare the input for the next cmd.
+// (even if there isn't actually a next one.)
+// and "reset" the stdout (with the copy).
+static void	new_pwd(t_cmd *cmd, t_var **env, int pipe_fd[2])
 {
-	if (exact_match(string_av[0], "echo"))
-		builtin_echo(string_av);
-	else if (exact_match(string_av[0], "cd"))
-		builtin_cd(*env);
-	else if (exact_match(string_av[0], "pwd"))
-		builtin_pwd(*env);
-	else if (exact_match(string_av[0], "export"))
-		builtin_export(env, string_av[1], string_av[2]);
-	else if (exact_match(string_av[0], "unset"))
-		builtin_unset(*env, string_av[1]);
-	else if (exact_match(string_av[0], "env"))
-		builtin_env(env);
-	else if (exact_match(string_av[0], "exit"))
-		printf("Exit builtin");
+	int		stdout_copy;
+	t_var	*pwd_var;
+
+	stdout_copy = dup(STDOUT_FILENO);
+	if (cmd->next && dup2(pipe_fd[PIPE_W], STDOUT_FILENO) == -1)
+		exit_handler(1); //error
+	do_redirs(cmd);
+
+	/* Start of actual builtin stuff */
+	pwd_var = env_search_name(*env, "PWD");
+	if (pwd_var)
+		printf("%s\n", pwd_var->value);
+	/* End of actual builtin stuff */
+
+	close_redirs(cmd);
+	close(pipe_fd[PIPE_W]);
+	if (dup2(pipe_fd[PIPE_R], STDIN_FILENO) == -1)
+		exit_handler(1);
+	if (dup2(stdout_copy, STDOUT_FILENO) == -1 || close(stdout_copy))
+		exit_handler(1);
+}
+
+// Again same redirs stuff, so maybe some wrapping function would be wise
+// Still needs '-n' option
+static void	new_echo(t_cmd *cmd, int pipe_fd[2])
+{
+	size_t	iter;
+	bool	nl;
+	int		stdout_copy;
+
+	stdout_copy = dup(STDOUT_FILENO);
+	if (cmd->next && dup2(pipe_fd[PIPE_W], STDOUT_FILENO) == -1)
+		exit_handler(1); //error
+	do_redirs(cmd);
+
+	/* Start of actual builtin stuff */
+	iter = 1;
+	nl = true;
+	if (exact_match(cmd->cmd_av[iter], "-n"))
+	{
+		nl = false;
+		iter++;
+	}
+	while (cmd->cmd_av[iter])
+	{
+		printf("%s", cmd->cmd_av[iter++]);
+		if (cmd->cmd_av[iter])
+			printf(" ");
+	}
+	if (nl)
+		printf("\n");
+	/* End of actual builtin stuff */
+
+	close_redirs(cmd);
+	close(pipe_fd[PIPE_W]);
+	if (dup2(pipe_fd[PIPE_R], STDIN_FILENO) == -1)
+		exit_handler(1);
+	if (dup2(stdout_copy, STDOUT_FILENO) == -1 || close(stdout_copy))
+		exit_handler(1);
+}
+
+int	check_for_builtins(t_cmd *cmd, t_var **env, int pipe_fd[2])
+{
+	(void)pipe_fd;
+	if (exact_match(cmd->cmd_av[0], "echo"))
+		return (new_echo(cmd, pipe_fd), 1);
+	else if (exact_match(cmd->cmd_av[0], "cd"))
+		return (builtin_cd(*env), 1);
+	else if (exact_match(cmd->cmd_av[0], "pwd"))
+		return (new_pwd(cmd, env, pipe_fd), 1);
+	else if (exact_match(cmd->cmd_av[0], "export"))
+		return (builtin_export(env, cmd->cmd_av[1], cmd->cmd_av[2]), 1);
+	else if (exact_match(cmd->cmd_av[0], "unset"))
+		return (builtin_unset(*env, cmd->cmd_av[1]), 1);
+	else if (exact_match(cmd->cmd_av[0], "env"))
+		return (builtin_env(env), 1);
+	else if (exact_match(cmd->cmd_av[0], "exit"))
+		return (printf("Exit builtin\n"), 1);
 	return (0);
 }
 
@@ -121,6 +190,7 @@ int	builtin_echo(char **strings_to_echo)//also code this without option -n
 {
 	int	iter;
 
+	printf("builtin_echo\n");
 	iter = 2;
 	//first check if -n is 
 	while (strings_to_echo[iter])
