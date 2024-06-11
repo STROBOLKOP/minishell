@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 19:40:59 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/10 18:54:42 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/06/11 12:04:34 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ int	check_for_builtins(char **string_av, t_var **env)
 	else if (exact_match(string_av[0], "env"))
 		builtin_env(env);
 	else if (exact_match(string_av[0], "exit"))
-		builtin_exit();
+		printf("Exit builtin");
 	return (0);
 }
 
@@ -50,9 +50,9 @@ int	builtin_pwd(t_var *env)
 {
 	while (env)
 	{
-		if (ft_strnstr(env->name, "PWD", 3))
+		if (exact_match(env->name, "PWD"))
 		{
-			printf("%s=%s\n", env->name, env->value);
+			printf("%s\n", env->value);
 			break ;
 		}
 		env = env->next;
@@ -62,6 +62,7 @@ int	builtin_pwd(t_var *env)
 	//Do I need to print error when PWD has been unset
 	//or do I need to show the correct working directory
 	//and figure it out differently?
+	//do it with getenv?
 }
 
 static char	*get_home_path_and_change_dir(t_var *env)
@@ -70,7 +71,7 @@ static char	*get_home_path_and_change_dir(t_var *env)
 
 	while (env)
 	{
-		if (ft_strnstr(env->name, "HOME", 4))
+		if (exact_match(env->name, "HOME"))
 		{
 			home_path = env->value;
 			if (chdir(home_path) != 0)
@@ -116,13 +117,12 @@ int	builtin_cd(t_var *env)
 	return (0);
 }
 
-int	builtin_echo(char **strings_to_echo)
+int	builtin_echo(char **strings_to_echo)//also code this without option -n
 {
 	int	iter;
 
 	iter = 2;
-	if (ft_strnstr(strings_to_echo[1], "$?", 2))
-		printf("%d\n", g_shell_stats.prev_exit);
+	//first check if -n is 
 	while (strings_to_echo[iter])
 	{
 		if (exact_match(strings_to_echo[1], "-n") && strings_to_echo[iter])
@@ -135,11 +135,11 @@ int	builtin_echo(char **strings_to_echo)
 	return (0); //is this the correct exit code?
 }
 
-void	builtin_unset(t_var *env, char *var_to_delete)
+void	builtin_unset(t_var *env, char *var_to_delete)//-> env del target
 {
 	while (env)
 	{
-		if (ft_strnstr(env->name, var_to_delete, ft_strlen(var_to_delete)))
+		if (ft_strnstr(env->name, var_to_delete, ft_strlen(var_to_delete)))//exact match
 		{
 			env->prev->next = env->next;
 			free(env->name);
