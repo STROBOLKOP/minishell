@@ -6,7 +6,7 @@
 /*   By: elias <efret@student.19.be>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/31 15:38:11 by elias             #+#    #+#             */
-/*   Updated: 2024/05/31 16:36:41 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/09 21:12:08 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ t_redir	*create_redir(char *str, int flags)
 
 	redir = malloc(sizeof(t_redir));
 	if (redir)
-		*redir = (t_redir){str, flags, NULL};
+		*redir = (t_redir){str, -1, flags, false, NULL};
 	return (redir);
 }
 
