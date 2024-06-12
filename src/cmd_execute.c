@@ -6,7 +6,7 @@
 /*   By: elias <efret@student.19.be>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/31 22:08:47 by elias             #+#    #+#             */
-/*   Updated: 2024/06/11 19:27:27 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/12 10:30:07 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,7 +173,7 @@ void	ft_run_cmds(t_cmd *cmds, t_minishell *shell)
 	{
 		if (pipe(pipe_fd) == -1)
 			exit_handler(1);
-		if (check_for_builtins(cmds, &shell->env, pipe_fd))
+		if (check_for_builtins(cmds, shell, pipe_fd))
 		{
 			if (!g_shell_stats.prev_exit)
 				cmds = cmds->next;

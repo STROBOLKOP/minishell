@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/11 18:58:10 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/12 14:15:28 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -156,12 +156,13 @@ void	env_add_back(t_var **head, t_var *new_node);
 void	env_del_target(t_var **head, t_var *node);
 t_var	*env_search_name(t_var *head, char *name);
 void	env_load(t_var **head, char **envp);
-void	env_add_var(t_var **head, char *token);
+t_var	*env_add_var(t_var **head, char *token);
 void	print_env(t_var *head);
 char	**make_export_envp(t_var *env_list);
+void	env_update_export(t_minishell *shell);
 
 /*	SRC	*/
-int		check_for_builtins(t_cmd *cmd, t_var **env, int pipe_fd[2]);
+int		check_for_builtins(t_cmd *cmd, t_minishell *shell, int pipe_fd[2]);
 void	tokenizer(char *line);
 t_token	*lexer(char *line);
 void	handle_single_quotes(t_lexeme *lexeme, char *line, int *index);
