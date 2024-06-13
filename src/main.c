@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:43 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/07 19:18:21 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/13 13:34:03 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,10 +64,39 @@ void	load_rc(char *filename, t_minishell *shell)
 	close(file);
 }
 
+void	shell_lvl(t_minishell *shell)
+{
+	char	*token;
+	char	*tmp;
+	t_var	*var;
+
+	var = env_search_name(shell->env, "SHLVL");
+	if (!var)
+	{
+		token = ft_strdup("SHLVL=1");
+		if (!token)
+			exit_handler(1);
+		env_add_var(&shell->env, token, NULL);
+		return (free(token));
+	}
+	tmp = ft_itoa(ft_atoi(var->value) + 1);
+	if (!tmp)
+		return ;
+	token = ft_strjoin("SHLVL=", tmp);
+	if (!token)
+		return (free(tmp));
+	var = env_add_var(&shell->env, token, NULL);
+	if (!var)
+		exit_handler(1);// error Handling
+	var->is_exp = true;
+	return (free(tmp), free(token));
+}
+
 void	shell_init(t_minishell *shell, char **envp)
 {
 	shell->env = NULL;
 	env_load(&shell->env, envp);
+	shell_lvl(shell);
 	memset(&g_shell_stats, 0, sizeof(t_shell_stats));
 	shell->export_env = make_export_envp(shell->env);
 }

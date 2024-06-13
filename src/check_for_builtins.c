@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 19:40:59 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/13 12:04:14 by efret            ###   ########.fr       */
+/*   Updated: 2024/06/13 13:30:04 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -127,7 +127,7 @@ static int	new_export(t_cmd *cmd, t_minishell *shell)
 	while (cmd->cmd_av[iter])
 	{
 		if (ft_strchr(cmd->cmd_av[iter], '='))
-			var = env_add_var(&shell->env, cmd->cmd_av[iter]);
+			var = env_add_var(&shell->env, cmd->cmd_av[iter], NULL);
 		else
 		{
 			var = env_search_name(shell->env, cmd->cmd_av[iter]); // maybe do the searching inside env_add_var_only?

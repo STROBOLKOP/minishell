@@ -6,11 +6,18 @@
 /*   By: elias <efret@student.19.be>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 14:36:12 by elias             #+#    #+#             */
-/*   Updated: 2024/06/12 14:12:32 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/13 13:28:29 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
+
+static inline t_var	*is_node(t_var *node)
+{
+	if (node)
+		return (node);
+	return (NULL);
+}
 
 void	print_env(t_var *head)
 {
@@ -21,33 +28,33 @@ void	print_env(t_var *head)
 	}
 }
 
-t_var	*env_add_var(t_var **head, char *token)
+t_var	*env_add_var(t_var **head, char *token, t_var *node)
 {
 	char	*name;
 	char	*val;
 	char	*equal_sign;
-	t_var	*node;
 
-	/* should search first, so its value should be changed */
 	name = ft_strdup(token);
 	if (!name)
 		return (errno = ENOMEM, NULL);
 	equal_sign = strchr(name, '=');
+	if (!equal_sign)
+		return (free(name), NULL);
 	val = equal_sign + 1;
 	*equal_sign = '\0';
 	node = env_search_name(*head, name);
 	if (node)
 	{
-		(printf("CHANGE VARIABLE\n"), free(name));
+		free(node->name);
+		node->name = name;
+		node->value = val;
 		return (node);
 	}
 	if (*val == '\0')
 		val = NULL;
 	node = create_env_var(name, val, false);
-	if (!node)
-		exit(1); //Error handling
 	env_add_back(head, node);
-	return (node);
+	return (is_node(node));
 }
 
 void	env_load(t_var **head, char **envp)
