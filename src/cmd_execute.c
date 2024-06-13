@@ -6,7 +6,7 @@
 /*   By: elias <efret@student.19.be>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/31 22:08:47 by elias             #+#    #+#             */
-/*   Updated: 2024/06/11 15:15:02 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/13 17:22:52 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,6 +107,8 @@ static void	ft_execve(t_cmd *cmd, int pipe_fd[2], t_minishell *shell)
 {
 	char	*cmd_path;
 
+	handle_sigquit_child();
+	handle_sigint_child();
 	if (cmd->next && dup2(pipe_fd[PIPE_W], STDOUT_FILENO) == -1)
 		exit_handler(1); // error
 	close(pipe_fd[PIPE_W]);
@@ -135,6 +137,12 @@ void	ft_wait(void)
 		}
 		*/
 	}
+	else if (WIFSIGNALED(wstat))
+	{
+		printf("Quit (core dumped)\n");
+		g_shell_stats.prev_exit = 131;
+		g_shell_stats.process_is_running = 0;
+	}
 }
 
 void	ft_run_cmds(t_cmd *cmds, t_minishell *shell)
@@ -145,7 +153,9 @@ void	ft_run_cmds(t_cmd *cmds, t_minishell *shell)
 
 	parse_here_docs(cmds, pipe_fd);
 	stdin_copy = dup(STDIN_FILENO);
-	while (cmds)
+	g_shell_stats.process_is_running = 1;
+	g_shell_stats.prev_exit = 0;
+	while (cmds && g_shell_stats.process_is_running)
 	{
 		if (pipe(pipe_fd) == -1)
 			exit_handler(1);
@@ -154,6 +164,7 @@ void	ft_run_cmds(t_cmd *cmds, t_minishell *shell)
 			exit_handler(1);
 		if (!cpid)
 			ft_execve(cmds, pipe_fd, shell);
+		g_shell_stats.cmd_pid = cpid;
 		close(pipe_fd[PIPE_W]);
 		if (dup2(pipe_fd[PIPE_R], STDIN_FILENO) == -1)
 			exit_handler(1);
@@ -161,6 +172,7 @@ void	ft_run_cmds(t_cmd *cmds, t_minishell *shell)
 		close(pipe_fd[PIPE_R]);
 		cmds = cmds->next;
 	}
+	g_shell_stats.process_is_running = 0;
 	if (dup2(stdin_copy, STDIN_FILENO) == -1 || close(stdin_copy))
 		exit_handler(1);
 }
