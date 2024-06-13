@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 19:40:59 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/12 14:44:20 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/13 11:45:13 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -221,6 +221,7 @@ static char	*get_home_path_and_change_dir(t_var *env)
 {
 	char	*home_path;
 
+	home_path = NULL;
 	while (env)
 	{
 		if (exact_match(env->name, "HOME"))
