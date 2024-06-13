@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 19:40:59 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/13 13:30:04 by efret            ###   ########.fr       */
+/*   Updated: 2024/06/13 14:46:53 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,6 +86,9 @@ static t_var	*env_add_var_only(t_var **env, char *name)
 
 	if (!name)
 		return (errno = EINVAL, NULL);
+	node = env_search_name(*env, name);
+	if (node)
+		return (node);
 	var_name = ft_calloc(ft_strlen(name) + 2, sizeof(char));
 	if (!var_name)
 		return (errno = ENOMEM, NULL);
@@ -129,11 +132,7 @@ static int	new_export(t_cmd *cmd, t_minishell *shell)
 		if (ft_strchr(cmd->cmd_av[iter], '='))
 			var = env_add_var(&shell->env, cmd->cmd_av[iter], NULL);
 		else
-		{
-			var = env_search_name(shell->env, cmd->cmd_av[iter]); // maybe do the searching inside env_add_var_only?
-			if (!var)
-				var = env_add_var_only(&shell->env, cmd->cmd_av[iter]);
-		}
+			var = env_add_var_only(&shell->env, cmd->cmd_av[iter]);
 		var->is_exp = true;
 		iter++;
 	}
