@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 19:40:59 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/13 11:45:13 by efret            ###   ########.fr       */
+/*   Updated: 2024/06/13 12:04:14 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,15 +55,12 @@ static int	new_echo(t_cmd *cmd, t_minishell *shell)
 
 static int	new_env(t_cmd *cmd, t_minishell *shell)
 {
-	t_var	*var;
+	size_t	i;
 
 	(void)cmd;
-	var = shell->env;
-	while (var)
-	{
-		printf("%s=%s\n", var->name, var->value);
-		var = var->next;
-	}
+	i = 0;
+	while (shell->export_env[i])
+		printf("%s\n", shell->export_env[i++]);
 	return (0);
 }
 
