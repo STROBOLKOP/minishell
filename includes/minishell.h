@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/11 15:10:37 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/13 11:41:23 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ typedef enum e_token_type
 
 typedef enum e_redir_type
 {
+	R_NONE,
 	R_IN,
 	R_OUT,
 	R_APND,

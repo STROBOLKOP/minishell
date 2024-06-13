@@ -6,7 +6,7 @@
 /*   By: elias <efret@student.19.be>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/31 16:48:52 by elias             #+#    #+#             */
-/*   Updated: 2024/05/31 21:49:49 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/13 11:40:48 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,7 @@ void	add_new_redir_node(t_redir **redirs, t_token **tokens)
 	redir_op = (*tokens)->str;
 	*tokens = (*tokens)->next;
 	redir_name = (*tokens)->str;
+	flags = R_NONE;
 	if (exact_match(redir_op, "<"))
 		flags = R_IN;
 	else if (exact_match(redir_op, ">"))
