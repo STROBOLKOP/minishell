@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 19:40:59 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/13 14:46:53 by efret            ###   ########.fr       */
+/*   Updated: 2024/06/13 15:02:06 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,11 +33,8 @@ static int	new_echo(t_cmd *cmd, t_minishell *shell)
 
 	(void)shell;
 	iter = 1;
-	if (!cmd->cmd_av[iter])
-		return (printf("\n"), 0);
 	nl = true;
-	// Very simple -n option, but maybe add wrong option detection?
-	if (exact_match(cmd->cmd_av[iter], "-n"))
+	if (cmd->cmd_av[iter] && exact_match(cmd->cmd_av[iter], "-n"))
 	{
 		nl = false;
 		iter++;
