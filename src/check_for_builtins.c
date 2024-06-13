@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 19:40:59 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/13 16:33:22 by efret            ###   ########.fr       */
+/*   Updated: 2024/06/13 16:49:14 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,7 @@ static int	new_unset(t_cmd *cmd, t_minishell *shell)
 	return (0);
 }
 
-static t_var	*env_add_var_only(t_var **env, char *name)
+t_var	*env_add_var_only(t_var **env, char *name)
 {
 	char	*var_name;
 	t_var	*node;

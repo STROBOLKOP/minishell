@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/13 13:29:15 by efret            ###   ########.fr       */
+/*   Updated: 2024/06/13 16:49:08 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -158,6 +158,7 @@ void	env_del_target(t_var **head, t_var *node);
 t_var	*env_search_name(t_var *head, char *name);
 void	env_load(t_var **head, char **envp);
 t_var	*env_add_var(t_var **head, char *token, t_var *node);
+t_var	*env_add_var_only(t_var **env, char *name);
 void	print_env(t_var *head);
 char	**make_export_envp(t_var *env_list);
 void	env_update_export(t_minishell *shell);

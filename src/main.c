@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:43 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/13 13:34:03 by efret            ###   ########.fr       */
+/*   Updated: 2024/06/13 18:22:28 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,7 @@ void	load_rc(char *filename, t_minishell *shell)
 
 void	shell_lvl(t_minishell *shell)
 {
+	int		lvl;
 	char	*token;
 	char	*tmp;
 	t_var	*var;
@@ -76,10 +77,20 @@ void	shell_lvl(t_minishell *shell)
 		token = ft_strdup("SHLVL=1");
 		if (!token)
 			exit_handler(1);
-		env_add_var(&shell->env, token, NULL);
+		var = env_add_var(&shell->env, token, NULL);
+		if (var)
+			var->is_exp = true;
 		return (free(token));
 	}
-	tmp = ft_itoa(ft_atoi(var->value) + 1);
+	lvl = ft_atoi(var->value) + 1;
+	if (lvl > 999)
+	{
+		printf("minishell: Warning: shell level (%i) too high, resetting to 1\n", lvl);
+		lvl = 1;
+	}
+	if (lvl < 0)
+		lvl = 0;
+	tmp = ft_itoa(lvl);
 	if (!tmp)
 		return ;
 	token = ft_strjoin("SHLVL=", tmp);
@@ -92,11 +103,43 @@ void	shell_lvl(t_minishell *shell)
 	return (free(tmp), free(token));
 }
 
+void	old_pwd(t_minishell *shell)
+{
+	t_var	*var;
+
+	var = env_search_name(shell->env, "OLDPWD");
+	if (!var)
+	{
+		var = env_add_var_only(&shell->env, "OLDPWD");
+		if (var)
+			var->is_exp = true;
+	}
+}
+
+void	init_pwd(t_minishell *shell)
+{
+	char	*pwd_val;
+	char	*pwd_token;
+	t_var	*var;
+
+	pwd_val = getenv("PWD");
+	if (!pwd_val)
+		return (printf("no pwd\n"), (void)0);
+	pwd_token = ft_strjoin("PWD=", pwd_val);
+	if (!pwd_token)
+		return ; // Malloc error
+	var = env_add_var(&shell->env, pwd_token, NULL);
+	if (var)
+		var->is_exp = true;
+}
+
 void	shell_init(t_minishell *shell, char **envp)
 {
 	shell->env = NULL;
 	env_load(&shell->env, envp);
 	shell_lvl(shell);
+	init_pwd(shell);
+	old_pwd(shell);
 	memset(&g_shell_stats, 0, sizeof(t_shell_stats));
 	shell->export_env = make_export_envp(shell->env);
 }
