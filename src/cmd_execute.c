@@ -3,14 +3,15 @@
 /*                                                        :::      ::::::::   */
 /*   cmd_execute.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: elias <efret@student.19.be>                +#+  +:+       +#+        */
+/*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/31 22:08:47 by elias             #+#    #+#             */
-/*   Updated: 2024/06/13 17:22:52 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/06/14 15:56:09 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
+#include <stdlib.h>
 
 int	open_file(char *name, int flag)
 {
@@ -39,7 +40,7 @@ int	read_here_doc(int pipe_fd[2], t_redir *redir)
 		if (exact_match(line, redir->str))
 		{
 			free(line);
-			break;
+			break ;
 		}
 		write(pipe_fd[PIPE_W], line, ft_strlen(line));
 		write(pipe_fd[PIPE_W], "\n", 1);
@@ -108,7 +109,7 @@ static void	ft_execve(t_cmd *cmd, int pipe_fd[2], t_minishell *shell)
 	char	*cmd_path;
 
 	handle_sigquit_child();
-	handle_sigint_child();
+	// handle_sigint_child();
 	if (cmd->next && dup2(pipe_fd[PIPE_W], STDOUT_FILENO) == -1)
 		exit_handler(1); // error
 	close(pipe_fd[PIPE_W]);
@@ -124,6 +125,7 @@ static void	ft_execve(t_cmd *cmd, int pipe_fd[2], t_minishell *shell)
 void	ft_wait(void)
 {
 	int	wstat;
+	int	sig;
 
 	wait(&wstat);
 	if (WIFEXITED(wstat))
@@ -133,14 +135,21 @@ void	ft_wait(void)
 		if (WEXITSTATUS(wstat) != 0)
 		{
 			errno = WEXITSTATUS(wstat);
-			exit_handler(errno); // instead of exit, should change variable, and continue to run minishell process
+			exit_handler(errno); // instead of exit, should change variable,
+				and continue to run minishell process
 		}
 		*/
 	}
 	else if (WIFSIGNALED(wstat))
 	{
-		printf("Quit (core dumped)\n");
-		g_shell_stats.prev_exit = 131;
+		sig = WTERMSIG(wstat);
+		if (sig == 3)
+		{
+			printf("Quit (core dumped)\n");
+			g_shell_stats.prev_exit = 131;
+		}
+		else
+			g_shell_stats.prev_exit = 130;
 		g_shell_stats.process_is_running = 0;
 	}
 }
@@ -149,12 +158,12 @@ void	ft_run_cmds(t_cmd *cmds, t_minishell *shell)
 {
 	int	pipe_fd[2];
 	int	cpid;
-	int	stdin_copy; // copy to restore stdin for later. Maybe need to do this for the other std streams as well.
+	int	stdin_copy;
 
+	// copy to restore stdin for later. Maybe need to do this for the other std streams as well.
 	parse_here_docs(cmds, pipe_fd);
 	stdin_copy = dup(STDIN_FILENO);
 	g_shell_stats.process_is_running = 1;
-	g_shell_stats.prev_exit = 0;
 	while (cmds && g_shell_stats.process_is_running)
 	{
 		if (pipe(pipe_fd) == -1)
