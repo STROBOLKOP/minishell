@@ -6,12 +6,11 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/31 22:08:47 by elias             #+#    #+#             */
-/*   Updated: 2024/06/15 10:21:09 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/06/15 10:57:09 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
-#include <stdlib.h>
 
 int	open_file(char *name, int flag)
 {
@@ -71,7 +70,7 @@ void	parse_here_docs(t_cmd *cmds, int pipe_fd[2])
 	}
 }
 
-static void	do_redirs(t_cmd *cmd)
+void	do_redirs(t_cmd *cmd)
 {
 	t_redir	*redirs;
 	int		fd;
@@ -83,6 +82,7 @@ static void	do_redirs(t_cmd *cmd)
 		{
 			if (dup2(redirs->fd, STDIN_FILENO) == -1)
 				exit_handler(1);
+			close(redirs->fd);
 		}
 		else
 		{
@@ -91,14 +91,38 @@ static void	do_redirs(t_cmd *cmd)
 				exit_handler(1);
 			if (redirs->flags == R_IN)
 			{
+				redirs->fd = fd;
+				redirs->is_fd = true;
 				if (dup2(fd, STDIN_FILENO) == -1)
 					exit_handler(1);
 			}
 			else
 			{
+				redirs->fd = fd;
+				redirs->is_fd = true;
 				if (dup2(fd, STDOUT_FILENO) == -1)
 					exit_handler(1);
 			}
+		}
+		redirs = redirs->next;
+	}
+}
+
+void	close_redirs(t_cmd *cmd)
+{
+	t_redir	*redirs;
+
+	redirs = cmd->redirs;
+	while (redirs)
+	{
+		if (redirs->flags)
+		{
+			; // No need to do anything, pipe end should be closed already.
+		}
+		else
+		{
+			close(redirs->fd);
+			redirs->fd = false;
 		}
 		redirs = redirs->next;
 	}
@@ -113,7 +137,6 @@ static void	ft_execve(t_cmd *cmd, int pipe_fd[2], t_minishell *shell)
 		exit_handler(1); // error
 	close(pipe_fd[PIPE_W]);
 	do_redirs(cmd);
-	check_for_builtins(cmd->cmd_av, &shell->env);
 	cmd_path = cmd_find_path(cmd->cmd_av[0], shell->env);
 	if (!cmd_path)
 		(printf("CMD NOT FOUND\n"), exit_handler(1));
@@ -167,6 +190,14 @@ void	ft_run_cmds(t_cmd *cmds, t_minishell *shell)
 	{
 		if (pipe(pipe_fd) == -1)
 			exit_handler(1);
+		if (check_for_builtins(cmds, shell, pipe_fd))
+		{
+			if (!g_shell_stats.prev_exit)
+				cmds = cmds->next;
+			else
+				break ;
+			continue;
+		}
 		cpid = fork();
 		if (cpid == -1)
 			exit_handler(1);

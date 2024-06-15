@@ -6,12 +6,11 @@
 /*   By: pclaus <pclaus@student.s19.be>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 10:20:46 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/11 19:10:36 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/06/15 10:58:22 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
-#include <stdbool.h>
 
 void	handle_single_quotes(t_lexeme *lexeme, char *line, int *index)
 {

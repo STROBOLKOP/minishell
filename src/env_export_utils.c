@@ -6,11 +6,24 @@
 /*   By: elias <efret@student.19.be>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/07 17:38:48 by elias             #+#    #+#             */
-/*   Updated: 2024/06/07 19:03:09 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/12 14:23:18 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
+
+void	free_env_export(char ***exp)
+{
+	size_t	i;
+
+	if (!exp || !(*exp))
+		return ;
+	i = 0;
+	while ((*exp)[i])
+		free((*exp)[i++]);
+	free((*exp));
+	*exp = NULL;
+}
 
 static size_t	count_export_vars(t_var *env_list)
 {
@@ -59,4 +72,10 @@ char	**make_export_envp(t_var *env_list)
 	}
 	ret[count_vars] = NULL;
 	return (ret);
+}
+
+void	env_update_export(t_minishell *shell)
+{
+	free_env_export(&shell->export_env);
+	shell->export_env = make_export_envp(shell->env);
 }

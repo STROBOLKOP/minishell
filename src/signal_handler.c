@@ -6,12 +6,11 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 16:09:16 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/14 15:59:08 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/06/15 10:57:18 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
-#include <signal.h>
 
 void	custom_sigint_handler_function(int signal)
 {

@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/14 15:59:45 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/06/15 10:57:28 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 # include <unistd.h>
 # include <fcntl.h>
 # include <sys/wait.h>
+# include <signal.h>
 
 # define PIPE_R 0
 # define PIPE_W 1
@@ -147,6 +148,8 @@ void	free_tokens(t_token **tokens);
 size_t	count_cmd_av(t_token *tokens);
 void	make_cmd_list(t_cmd **cmds, t_token *tokens);
 void	free_cmds(t_cmd **cmds);
+void	do_redirs(t_cmd *cmd);
+void	close_redirs(t_cmd *cmd);
 void	ft_run_cmds(t_cmd *cmds, t_minishell *shell);
 char	*cmd_find_path(char *cmd_name, t_var *env_list);
 
@@ -156,12 +159,14 @@ void	env_add_back(t_var **head, t_var *new_node);
 void	env_del_target(t_var **head, t_var *node);
 t_var	*env_search_name(t_var *head, char *name);
 void	env_load(t_var **head, char **envp);
-void	env_add_var(t_var **head, char *token);
+t_var	*env_add_var(t_var **head, char *token, t_var *node);
+t_var	*env_add_var_only(t_var **env, char *name);
 void	print_env(t_var *head);
 char	**make_export_envp(t_var *env_list);
+void	env_update_export(t_minishell *shell);
 
 /*	SRC	*/
-int		check_for_builtins(char **string_av, t_var **env);
+int		check_for_builtins(t_cmd *cmd, t_minishell *shell, int pipe_fd[2]);
 void	tokenizer(char *line);
 t_token	*lexer(char *line);
 void	handle_single_quotes(t_lexeme *lexeme, char *line, int *index);
