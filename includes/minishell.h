@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/13 11:41:23 by efret            ###   ########.fr       */
+/*   Updated: 2024/06/14 15:59:45 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,9 +106,10 @@ typedef struct s_minishell
 
 typedef struct s_shell_stats
 {
-	int	cmd_pid;
-	int	prev_exit;
+	pid_t	cmd_pid;
+	volatile sig_atomic_t	prev_exit;
 	int	stat_flags;
+	volatile sig_atomic_t	process_is_running;
 }	t_shell_stats;
 
 extern t_shell_stats	g_shell_stats;
@@ -173,5 +174,6 @@ void	handle_dollar(t_lexeme *lexeme, char *line, int *index);
 void	parser(t_token **token);
 void	handle_sigint(void);
 void	handle_sigquit(void);
+void	handle_sigquit_child(void);
 void	handle_eof(char *line, int index);
 #endif
