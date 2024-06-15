@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 16:09:16 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/15 10:57:18 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/15 16:38:08 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,10 +14,15 @@
 
 void	custom_sigint_handler_function(int signal)
 {
+	int	wstat;
+	int	sig;
+	pid_t	pid;
+
 	(void)signal;
 	write(1, "\n", 1);
 	if (!g_shell_stats.process_is_running)
 	{
+		g_shell_stats.prev_exit = 130;
 		rl_replace_line("", 0);
 		rl_on_new_line();
 		rl_redisplay();
@@ -25,7 +30,33 @@ void	custom_sigint_handler_function(int signal)
 	else
 	{
 		kill(g_shell_stats.cmd_pid, SIGINT);
-		waitpid(g_shell_stats.cmd_pid, NULL, 0);
+		(void)pid;
+		pid = waitpid(g_shell_stats.cmd_pid, &wstat, 0);
+		ft_putstr_fd("SIGINT: waitpid=", 1);
+		ft_putnbr_fd(pid, 1);
+		write(1, "\n", 1);
+		if (WIFEXITED(wstat))
+		{
+			ft_putstr_fd("exited: ", 1);
+			ft_putnbr_fd(WEXITSTATUS(wstat), 1);
+			write(1, "\n", 1);
+			g_shell_stats.prev_exit = WEXITSTATUS(wstat);
+		}
+		else if (WIFSIGNALED(wstat))
+		{
+			sig = WTERMSIG(wstat);
+			ft_putstr_fd("sig: ", 1);
+			ft_putnbr_fd(sig, 1);
+			write(1, "\n", 1);
+			if (sig == 3)
+			{
+				printf("Quit (core dumped)\n");
+				g_shell_stats.prev_exit = 131;
+			}
+			else
+				g_shell_stats.prev_exit = 130;
+			g_shell_stats.process_is_running = 0;
+		}
 	}
 }
 

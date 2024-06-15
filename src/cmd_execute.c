@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/31 22:08:47 by elias             #+#    #+#             */
-/*   Updated: 2024/06/15 10:57:09 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/15 16:38:28 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -144,25 +144,16 @@ static void	ft_execve(t_cmd *cmd, int pipe_fd[2], t_minishell *shell)
 	exit_handler(1); // reached if execve (execpv) had an error.
 }
 
-void	ft_wait(void)
+void	ft_wait(pid_t cpid)
 {
+	pid_t	pid;
 	int	wstat;
 	int	sig;
 
-	wait(&wstat);
-	if (WIFEXITED(wstat))
-	{
-		g_shell_stats.prev_exit = WEXITSTATUS(wstat);
-		/*
-		if (WEXITSTATUS(wstat) != 0)
-		{
-			errno = WEXITSTATUS(wstat);
-			exit_handler(errno); // instead of exit, should change variable,
-				and continue to run minishell process
-		}
-		*/
-	}
-	else if (WIFSIGNALED(wstat))
+	(void)sig;
+	pid = waitpid(cpid, &wstat, 0);
+	printf("cpid = %i\nerrno = %i\n", pid, errno);
+	if (WIFSIGNALED(wstat))
 	{
 		sig = WTERMSIG(wstat);
 		if (sig == 3)
@@ -170,8 +161,6 @@ void	ft_wait(void)
 			printf("Quit (core dumped)\n");
 			g_shell_stats.prev_exit = 131;
 		}
-		else
-			g_shell_stats.prev_exit = 130;
 		g_shell_stats.process_is_running = 0;
 	}
 }
@@ -185,6 +174,7 @@ void	ft_run_cmds(t_cmd *cmds, t_minishell *shell)
 	// copy to restore stdin for later. Maybe need to do this for the other std streams as well.
 	parse_here_docs(cmds, pipe_fd);
 	stdin_copy = dup(STDIN_FILENO);
+	g_shell_stats.prev_exit = 0;
 	g_shell_stats.process_is_running = 1;
 	while (cmds && g_shell_stats.process_is_running)
 	{
@@ -207,10 +197,10 @@ void	ft_run_cmds(t_cmd *cmds, t_minishell *shell)
 		close(pipe_fd[PIPE_W]);
 		if (dup2(pipe_fd[PIPE_R], STDIN_FILENO) == -1)
 			exit_handler(1);
-		ft_wait();
 		close(pipe_fd[PIPE_R]);
 		cmds = cmds->next;
 	}
+	ft_wait(cpid);
 	g_shell_stats.process_is_running = 0;
 	if (dup2(stdin_copy, STDIN_FILENO) == -1 || close(stdin_copy))
 		exit_handler(1);
