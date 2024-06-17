@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/31 22:08:47 by elias             #+#    #+#             */
-/*   Updated: 2024/06/15 16:38:28 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/17 20:50:57 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,9 +116,7 @@ void	close_redirs(t_cmd *cmd)
 	while (redirs)
 	{
 		if (redirs->flags)
-		{
 			; // No need to do anything, pipe end should be closed already.
-		}
 		else
 		{
 			close(redirs->fd);
@@ -146,23 +144,10 @@ static void	ft_execve(t_cmd *cmd, int pipe_fd[2], t_minishell *shell)
 
 void	ft_wait(pid_t cpid)
 {
-	pid_t	pid;
-	int	wstat;
-	int	sig;
-
-	(void)sig;
-	pid = waitpid(cpid, &wstat, 0);
-	printf("cpid = %i\nerrno = %i\n", pid, errno);
-	if (WIFSIGNALED(wstat))
-	{
-		sig = WTERMSIG(wstat);
-		if (sig == 3)
-		{
-			printf("Quit (core dumped)\n");
-			g_shell_stats.prev_exit = 131;
-		}
-		g_shell_stats.process_is_running = 0;
-	}
+	(void)cpid;
+	while (g_shell_stats.process_is_running && wait(NULL) > 0)
+		;
+	usleep(100);// make sure signal_handlers go first I guess???
 }
 
 void	ft_run_cmds(t_cmd *cmds, t_minishell *shell)

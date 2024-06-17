@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/15 10:57:28 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/17 20:13:22 by elias            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,4 +181,5 @@ void	handle_sigint(void);
 void	handle_sigquit(void);
 void	handle_sigquit_child(void);
 void	handle_eof(char *line, int index);
+void	handle_sigchld(void);
 #endif
