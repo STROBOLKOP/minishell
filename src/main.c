@@ -131,6 +131,7 @@ void	init_pwd(t_minishell *shell)
 	var = env_add_var(&shell->env, pwd_token, NULL);
 	if (var)
 		var->is_exp = true;
+	free(pwd_token);
 }
 
 void	shell_init(t_minishell *shell, char **envp)
