@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/31 22:08:47 by efret             #+#    #+#             */
-/*   Updated: 2024/06/17 20:50:57 by efret            ###   ########.fr       */
+/*   Updated: 2024/06/18 16:23:18 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,12 +142,40 @@ static void	ft_execve(t_cmd *cmd, int pipe_fd[2], t_minishell *shell)
 	exit_handler(1); // reached if execve (execpv) had an error.
 }
 
+static inline void	status_stuff(pid_t cpid, pid_t pid, int wstat)
+{
+	if (pid != cpid)
+		return ;
+	if (WIFEXITED(wstat))
+		g_shell_stats.prev_exit = WEXITSTATUS(wstat);
+	else if (WIFSIGNALED(wstat))
+	{
+		if (WCOREDUMP(wstat))
+		{
+			printf("Quit (core dumped)\n");
+			g_shell_stats.prev_exit = ENOTRECOVERABLE;
+		}
+		else if (WTERMSIG(wstat) == CLD_KILLED)
+		{
+			write(1, "\n", 1);
+			g_shell_stats.prev_exit = EOWNERDEAD;
+		}
+	}
+}
+
 void	ft_wait(pid_t cpid)
 {
-	(void)cpid;
-	while (g_shell_stats.process_is_running && wait(NULL) > 0)
-		;
-	usleep(100);// make sure signal_handlers go first I guess???
+	int		wstat;
+	pid_t	pid;
+
+	while ((pid = wait(&wstat)) > 0)
+		status_stuff(cpid, pid, wstat);
+	if (errno == EINTR)
+	{
+		pid = waitpid(cpid, &wstat, 0);
+		status_stuff(cpid, pid, wstat);
+	}
+	g_shell_stats.process_is_running = 0;
 }
 
 void	ft_run_cmds(t_cmd *cmds, t_minishell *shell)
@@ -186,7 +214,6 @@ void	ft_run_cmds(t_cmd *cmds, t_minishell *shell)
 		cmds = cmds->next;
 	}
 	ft_wait(cpid);
-	g_shell_stats.process_is_running = 0;
 	if (dup2(stdin_copy, STDIN_FILENO) == -1 || close(stdin_copy))
 		exit_handler(1);
 }

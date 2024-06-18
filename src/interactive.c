@@ -6,7 +6,7 @@
 /*   By: efret <efret@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/24 14:45:03 by efret             #+#    #+#             */
-/*   Updated: 2024/06/17 13:59:13 by efret            ###   ########.fr       */
+/*   Updated: 2024/06/18 16:13:46 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,6 @@ void	interactive(t_minishell *shell)
 
 	handle_sigint();
 	handle_sigquit();
-	handle_sigchld();
 	while (1)
 	{
 		if (g_shell_stats.prev_exit)
