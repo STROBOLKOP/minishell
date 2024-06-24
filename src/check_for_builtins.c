@@ -6,21 +6,22 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 19:40:59 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/15 10:55:35 by elias            ###   ########.fr       */
+/*   Updated: 2024/06/24 19:33:29 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
 
-static void	builtin_wrapper(int (*func)(t_cmd *, t_minishell *), t_cmd *cmd, t_minishell *shell, int pipe_fd[2]);
+static void	builtin_wrapper(int (*func)(t_cmd *, t_minishell *), t_cmd *cmd,
+				t_minishell *shell, int pipe_fd[2]);
 
 static int	new_pwd(t_cmd *cmd, t_minishell *shell)
 {
-	char	*pwd_val;
+	char	pwd_val[200];
 
 	(void)cmd;
 	(void)shell;
-	pwd_val = getenv("PWD");
+	getcwd(pwd_val, sizeof(pwd_val));
 	printf("%s\n", pwd_val);
 	return (0);
 }
@@ -136,13 +137,120 @@ static int	new_export(t_cmd *cmd, t_minishell *shell)
 	return (0);
 }
 
+void	update_path(t_var **dest_node, t_var **source_node, t_minishell *shell,
+		char *string)
+{
+	char	*new_path;
+
+	new_path = malloc(ft_strlen(string) + ft_strlen((*source_node)->value) + 1);
+	if (!new_path)
+		return ;
+	ft_strlcpy(new_path, string, ft_strlen(string) + 1);
+	ft_strlcat(new_path, (*source_node)->value, (ft_strlen(new_path)
+				+ ft_strlen((*source_node)->value) + 1));
+	*dest_node = env_add_var(&shell->env, new_path, NULL);
+	free(new_path);
+}
+
+static void	builtin_cd_no_arg(t_var **pwd_node, t_var **home_node,
+		t_var **oldpwd_node, t_minishell *shell)
+{
+	*home_node = env_search_name(shell->env, "HOME");
+	*pwd_node = env_search_name(shell->env, "PWD");
+	*oldpwd_node = env_search_name(shell->env, "OLDPWD");
+	update_path(oldpwd_node, pwd_node, shell, "OLDPWD=");
+	update_path(pwd_node, home_node, shell, "PWD=");
+	if (chdir((*home_node)->value))
+	{
+		if (errno == 2)
+			printf("No such file or directory\n");
+		g_shell_stats.prev_exit = 1;
+		exit_handler(1); //error handling
+	}
+	env_update_export(shell);
+}
+
+static void	builtin_cd_abs_path(t_var **pwd_node, t_var **oldpwd_node,
+		t_cmd *cmd, t_minishell *shell)
+{
+	char	*new_pwd;
+
+	*pwd_node = env_search_name(shell->env, "PWD");
+	*oldpwd_node = env_search_name(shell->env, "OLDPWD");
+	if (chdir(cmd->cmd_av[1]))
+	{
+		if (errno == 2)
+			printf("No such file or directory\n");
+		g_shell_stats.prev_exit = 1;
+		exit_handler(1); //error handling
+	}
+	update_path(oldpwd_node, pwd_node, shell, "OLDPWD=");
+	new_pwd = malloc(ft_strlen("PWD=") + ft_strlen(cmd->cmd_av[1]) + 1);
+	if (!new_pwd)
+		return ;
+	ft_strlcpy(new_pwd, "PWD=", 5);
+	ft_strlcat(new_pwd, cmd->cmd_av[1], (ft_strlen(new_pwd)
+				+ ft_strlen(cmd->cmd_av[1]) + 1));
+	*pwd_node = env_add_var(&shell->env, new_pwd, NULL);
+	free(new_pwd);
+	env_update_export(shell);
+}
+
+static void	builtin_cd_rel_path(t_var **pwd_node, t_var **oldpwd_node,
+		t_cmd *cmd, t_minishell *shell)
+{
+	char	new_pwd[200];
+	char	*new_pwd_string;
+
+	*pwd_node = env_search_name(shell->env, "PWD");
+	*oldpwd_node = env_search_name(shell->env, "OLDPWD");
+	if (chdir(cmd->cmd_av[1]))
+	{
+		if (errno == 2)
+			printf("No such file or directory\n");
+		g_shell_stats.prev_exit = 1;
+		exit_handler(1); //error handling
+	}
+	update_path(oldpwd_node, pwd_node, shell, "OLDPWD=");
+	getcwd(new_pwd, sizeof(new_pwd));
+	new_pwd_string = malloc(sizeof(char) * (ft_strlen(new_pwd) + 5));
+	if (!new_pwd_string)
+		return ;
+	ft_strlcpy(new_pwd_string, "PWD=", 5);
+	ft_strlcat(new_pwd_string, new_pwd, ft_strlen("PWD=") + ft_strlen(new_pwd)
+			+ 1);
+	*pwd_node = env_add_var(&shell->env, new_pwd_string, *pwd_node);
+	*pwd_node = env_search_name(shell->env, "PWD");
+	free(new_pwd_string);
+	env_update_export(shell);
+}
+static int	new_cd(t_cmd *cmd, t_minishell *shell)
+{
+	t_var	*home_node;
+	t_var	*pwd_node;
+	t_var	*oldpwd_node;
+
+	home_node = NULL;
+	pwd_node = NULL;
+	oldpwd_node = NULL;
+	if (!cmd->cmd_av[1])
+		builtin_cd_no_arg(&pwd_node, &home_node, &oldpwd_node, shell);
+	else if (cmd->cmd_av[1] && cmd->cmd_av[1][0] == '/')
+		builtin_cd_abs_path(&pwd_node, &oldpwd_node, cmd, shell);
+	else if (cmd->cmd_av[1] && (cmd->cmd_av[1][0] == '.'
+				|| cmd->cmd_av[1][0] == '~'))
+		builtin_cd_rel_path(&pwd_node, &oldpwd_node, cmd, shell);
+	g_shell_stats.prev_exit = 0;
+	return (0);
+}
+
 int	check_for_builtins(t_cmd *cmd, t_minishell *shell, int pipe_fd[2])
 {
 	(void)pipe_fd;
 	if (exact_match(cmd->cmd_av[0], "echo"))
 		builtin_wrapper(new_echo, cmd, shell, pipe_fd);
 	else if (exact_match(cmd->cmd_av[0], "cd"))
-		builtin_cd(shell->env); // Still have to create this one.
+		builtin_wrapper(new_cd, cmd, shell, pipe_fd);
 	else if (exact_match(cmd->cmd_av[0], "pwd"))
 		builtin_wrapper(new_pwd, cmd, shell, pipe_fd);
 	else if (exact_match(cmd->cmd_av[0], "export"))
@@ -157,9 +265,10 @@ int	check_for_builtins(t_cmd *cmd, t_minishell *shell, int pipe_fd[2])
 		return (0);
 	return (1);
 }
-static void	builtin_wrapper(int (*func)(t_cmd *, t_minishell *), t_cmd *cmd, t_minishell *shell, int pipe_fd[2])
+static void	builtin_wrapper(int (*func)(t_cmd *, t_minishell *), t_cmd *cmd,
+		t_minishell *shell, int pipe_fd[2])
 {
-	int		stdout_copy;
+	int	stdout_copy;
 
 	stdout_copy = dup(STDOUT_FILENO);
 	if (cmd->next && dup2(pipe_fd[PIPE_W], STDOUT_FILENO) == -1)
@@ -173,164 +282,3 @@ static void	builtin_wrapper(int (*func)(t_cmd *, t_minishell *), t_cmd *cmd, t_m
 	if (dup2(stdout_copy, STDOUT_FILENO) == -1 || close(stdout_copy))
 		exit_handler(1);
 }
-
-/* Left your stuff untouched I believe */
-
-int	builtin_env(t_var **env)
-{
-	t_var	*current;
-
-	current = *env;
-	while (current)
-	{
-		printf("%s=%s\n", current->name, current->value);
-		current = current->next;
-	}
-	g_shell_stats.prev_exit = 0;
-	return (0);
-}
-
-int	builtin_pwd(t_var *env)
-{
-	while (env)
-	{
-		if (exact_match(env->name, "PWD"))
-		{
-			printf("%s\n", env->value);
-			break ;
-		}
-		env = env->next;
-	}
-	g_shell_stats.prev_exit = 0;
-	return (0);
-	//Do I need to print error when PWD has been unset
-	//or do I need to show the correct working directory
-	//and figure it out differently?
-	//do it with getenv?
-}
-
-static char	*get_home_path_and_change_dir(t_var *env)
-{
-	char	*home_path;
-
-	home_path = NULL;
-	while (env)
-	{
-		if (exact_match(env->name, "HOME"))
-		{
-			home_path = env->value;
-			if (chdir(home_path) != 0)
-			{
-				if (errno == 2)
-					printf("No such file or directory\n");
-				g_shell_stats.prev_exit = 1;
-				exit_handler(1);
-			}
-			break ;
-		}
-		env = env->next;
-	}
-	return (home_path);
-}
-
-static void	set_pwd_to_home_path(t_var *env, char *home_path)
-{
-	while (env)
-	{
-		if (ft_strnstr(env->name, "PWD", 3))
-		{
-			env->value = home_path;
-			break ;
-		}
-		env = env->next;
-	}
-}
-
-int	builtin_cd(t_var *env)
-{
-	char	*home_path;
-
-	//make one function to handle cd without arguments
-	home_path = get_home_path_and_change_dir(env);
-	set_pwd_to_home_path(env, home_path);
-
-	//TO DO: cd with absolute path
-	
-	//TO DO: cd with relative path
-
-	g_shell_stats.prev_exit = 0;
-	return (0);
-}
-
-int	builtin_echo(char **strings_to_echo)//also code this without option -n
-{
-	int	iter;
-
-	printf("builtin_echo\n");
-	iter = 2;
-	//first check if -n is 
-	while (strings_to_echo[iter])
-	{
-		if (exact_match(strings_to_echo[1], "-n") && strings_to_echo[iter])
-			printf("%s ", strings_to_echo[iter]);
-		iter++;
-	}
-//	if (exact_match(strings_to_echo[1], "-n") && !strings_to_echo[iter])
-	//	printf("\n");
-	g_shell_stats.prev_exit = 0;
-	return (0); //is this the correct exit code?
-}
-
-void	builtin_unset(t_var *env, char *var_to_delete)//-> env del target
-{
-	while (env)
-	{
-		if (ft_strnstr(env->name, var_to_delete, ft_strlen(var_to_delete)))//exact match
-		{
-			env->prev->next = env->next;
-			free(env->name);
-			free(env->value);
-			free(env);
-			g_shell_stats.prev_exit = 0;
-			break ;
-		}
-		env = env->next;
-	}
-}
-
-static t_var	*create_new_node(char *name_to_export, char *value_to_export)
-{
-	t_var	*new_var;
-
-	new_var = malloc(sizeof(t_var));
-	if (!new_var)
-		return (NULL);
-	new_var->name = ft_strdup(name_to_export);
-	//ft_strdup is needed because the strings would not be saved if the function ends and when I run the env command again
-	new_var->value = ft_strdup(value_to_export); //same here
-	new_var->is_exp = true;
-	new_var->next = NULL;
-	new_var->prev = NULL;
-	return (new_var);
-}
-
-static void	add_node_back(t_var **env, t_var *node)
-{
-	t_var	*current;
-
-	current = *env;
-	while (current->next)
-		current = current->next;
-	current->next = node;
-	node->prev = current;
-}
-
-void	builtin_export(t_var **env, char *name_to_export, char *value_to_export)
-{
-	t_var	*new_var;
-
-	new_var = create_new_node(name_to_export, value_to_export);
-	add_node_back(env, new_var);
-	g_shell_stats.prev_exit = 0;
-}
-
