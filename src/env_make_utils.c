@@ -6,7 +6,7 @@
 /*   By: efret <efret@student.19.be>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 14:36:12 by efret             #+#    #+#             */
-/*   Updated: 2024/06/13 13:28:29 by efret            ###   ########.fr       */
+/*   Updated: 2024/06/25 17:25:48 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,15 +17,6 @@ static inline t_var	*is_node(t_var *node)
 	if (node)
 		return (node);
 	return (NULL);
-}
-
-void	print_env(t_var *head)
-{
-	while (head)
-	{
-		printf("%sNAME:\t%s\n%sVALUE:\t%s%s\n", "\033[33m", head->name, "\033[32m", head->value, "\033[0m");
-		head = head->next;
-	}
 }
 
 t_var	*env_add_var(t_var **head, char *token, t_var *node)
