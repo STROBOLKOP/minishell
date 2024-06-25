@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:43 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/25 15:54:46 by efret            ###   ########.fr       */
+/*   Updated: 2024/06/25 17:04:43 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,6 +135,17 @@ void	init_pwd(t_minishell *shell)
 	free(pwd_val);
 }
 
+void	init_path(t_minishell *shell)
+{
+	t_var	*var;
+	char	*dft_p;
+
+	dft_p = "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
+	var = env_search_name(shell->env, "PATH");
+	if (!var)
+		var = env_add_var(&shell->env, dft_p, NULL);
+}
+
 void	shell_init(t_minishell *shell, char **envp)
 {
 	shell->env = NULL;
@@ -142,6 +153,7 @@ void	shell_init(t_minishell *shell, char **envp)
 	shell_lvl(shell);
 	init_pwd(shell);
 	old_pwd(shell);
+	init_path(shell);
 	memset(&g_shell_stats, 0, sizeof(t_shell_stats));
 	shell->export_env = make_export_envp(shell->env);
 }
