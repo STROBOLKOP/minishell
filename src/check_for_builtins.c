@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 19:40:59 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/15 10:55:35 by efret            ###   ########.fr       */
+/*   Updated: 2024/06/25 15:52:11 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,9 @@ static int	new_pwd(t_cmd *cmd, t_minishell *shell)
 
 	(void)cmd;
 	(void)shell;
-	pwd_val = getenv("PWD");
+	pwd_val = getcwd(NULL, 0);
 	printf("%s\n", pwd_val);
+	free(pwd_val);
 	return (0);
 }
 

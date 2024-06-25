@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:43 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/18 12:23:20 by efret            ###   ########.fr       */
+/*   Updated: 2024/06/25 15:54:46 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -122,9 +122,9 @@ void	init_pwd(t_minishell *shell)
 	char	*pwd_token;
 	t_var	*var;
 
-	pwd_val = getenv("PWD");
+	pwd_val = getcwd(NULL, 0);
 	if (!pwd_val)
-		return (printf("no pwd\n"), (void)0);
+		exit_handler(1); // Error
 	pwd_token = ft_strjoin("PWD=", pwd_val);
 	if (!pwd_token)
 		return ; // Malloc error
@@ -132,6 +132,7 @@ void	init_pwd(t_minishell *shell)
 	if (var)
 		var->is_exp = true;
 	free(pwd_token);
+	free(pwd_val);
 }
 
 void	shell_init(t_minishell *shell, char **envp)
