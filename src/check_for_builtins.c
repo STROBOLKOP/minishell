@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 19:40:59 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/24 19:33:29 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/06/25 16:11:18 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,12 +17,13 @@ static void	builtin_wrapper(int (*func)(t_cmd *, t_minishell *), t_cmd *cmd,
 
 static int	new_pwd(t_cmd *cmd, t_minishell *shell)
 {
-	char	pwd_val[200];
+	char	*pwd_val;
 
 	(void)cmd;
 	(void)shell;
-	getcwd(pwd_val, sizeof(pwd_val));
+	pwd_val = getcwd(NULL, 0);
 	printf("%s\n", pwd_val);
+	free(pwd_val);
 	return (0);
 }
 
