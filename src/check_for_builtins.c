@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 19:40:59 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/25 16:11:18 by efret            ###   ########.fr       */
+/*   Updated: 2024/06/25 18:25:50 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,7 @@ static int	new_unset(t_cmd *cmd, t_minishell *shell)
 		env_del_target(&shell->env, to_unset);
 		iter++;
 	}
+	env_update_export(shell);
 	return (0);
 }
 
