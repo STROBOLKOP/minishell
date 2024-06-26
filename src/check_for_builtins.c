@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 19:40:59 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/25 16:11:18 by efret            ###   ########.fr       */
+/*   Updated: 2024/06/26 16:06:35 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,33 +171,7 @@ static void	builtin_cd_no_arg(t_var **pwd_node, t_var **home_node,
 	env_update_export(shell);
 }
 
-static void	builtin_cd_abs_path(t_var **pwd_node, t_var **oldpwd_node,
-		t_cmd *cmd, t_minishell *shell)
-{
-	char	*new_pwd;
-
-	*pwd_node = env_search_name(shell->env, "PWD");
-	*oldpwd_node = env_search_name(shell->env, "OLDPWD");
-	if (chdir(cmd->cmd_av[1]))
-	{
-		if (errno == 2)
-			printf("No such file or directory\n");
-		g_shell_stats.prev_exit = 1;
-		exit_handler(1); //error handling
-	}
-	update_path(oldpwd_node, pwd_node, shell, "OLDPWD=");
-	new_pwd = malloc(ft_strlen("PWD=") + ft_strlen(cmd->cmd_av[1]) + 1);
-	if (!new_pwd)
-		return ;
-	ft_strlcpy(new_pwd, "PWD=", 5);
-	ft_strlcat(new_pwd, cmd->cmd_av[1], (ft_strlen(new_pwd)
-				+ ft_strlen(cmd->cmd_av[1]) + 1));
-	*pwd_node = env_add_var(&shell->env, new_pwd, NULL);
-	free(new_pwd);
-	env_update_export(shell);
-}
-
-static void	builtin_cd_rel_path(t_var **pwd_node, t_var **oldpwd_node,
+static void	builtin_cd_arg(t_var **pwd_node, t_var **oldpwd_node,
 		t_cmd *cmd, t_minishell *shell)
 {
 	char	new_pwd[200];
@@ -236,11 +210,8 @@ static int	new_cd(t_cmd *cmd, t_minishell *shell)
 	oldpwd_node = NULL;
 	if (!cmd->cmd_av[1])
 		builtin_cd_no_arg(&pwd_node, &home_node, &oldpwd_node, shell);
-	else if (cmd->cmd_av[1] && cmd->cmd_av[1][0] == '/')
-		builtin_cd_abs_path(&pwd_node, &oldpwd_node, cmd, shell);
-	else if (cmd->cmd_av[1] && (cmd->cmd_av[1][0] == '.'
-				|| cmd->cmd_av[1][0] == '~'))
-		builtin_cd_rel_path(&pwd_node, &oldpwd_node, cmd, shell);
+	else 
+		builtin_cd_arg(&pwd_node, &oldpwd_node, cmd, shell);
 	g_shell_stats.prev_exit = 0;
 	return (0);
 }
