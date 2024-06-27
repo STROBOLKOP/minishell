@@ -6,11 +6,12 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 19:40:59 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/26 16:06:35 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/06/27 11:58:12 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
+#include <unistd.h>
 
 static void	builtin_wrapper(int (*func)(t_cmd *, t_minishell *), t_cmd *cmd,
 				t_minishell *shell, int pipe_fd[2]);
@@ -157,6 +158,11 @@ static void	builtin_cd_no_arg(t_var **pwd_node, t_var **home_node,
 		t_var **oldpwd_node, t_minishell *shell)
 {
 	*home_node = env_search_name(shell->env, "HOME");
+	if (!(*home_node))
+	{
+		printf("cd: HOME not set\n");
+		exit_handler(1); //error handling
+	}
 	*pwd_node = env_search_name(shell->env, "PWD");
 	*oldpwd_node = env_search_name(shell->env, "OLDPWD");
 	update_path(oldpwd_node, pwd_node, shell, "OLDPWD=");
@@ -174,11 +180,9 @@ static void	builtin_cd_no_arg(t_var **pwd_node, t_var **home_node,
 static void	builtin_cd_arg(t_var **pwd_node, t_var **oldpwd_node,
 		t_cmd *cmd, t_minishell *shell)
 {
-	char	new_pwd[200];
+	char	*pwd_value;
 	char	*new_pwd_string;
 
-	*pwd_node = env_search_name(shell->env, "PWD");
-	*oldpwd_node = env_search_name(shell->env, "OLDPWD");
 	if (chdir(cmd->cmd_av[1]))
 	{
 		if (errno == 2)
@@ -186,17 +190,18 @@ static void	builtin_cd_arg(t_var **pwd_node, t_var **oldpwd_node,
 		g_shell_stats.prev_exit = 1;
 		exit_handler(1); //error handling
 	}
-	update_path(oldpwd_node, pwd_node, shell, "OLDPWD=");
-	getcwd(new_pwd, sizeof(new_pwd));
-	new_pwd_string = malloc(sizeof(char) * (ft_strlen(new_pwd) + 5));
+	pwd_value = getcwd(NULL, 0);
+	if (!pwd_value)
+		exit_handler(1);//error handling
+	new_pwd_string = ft_strjoin("PWD=", pwd_value);
 	if (!new_pwd_string)
-		return ;
-	ft_strlcpy(new_pwd_string, "PWD=", 5);
-	ft_strlcat(new_pwd_string, new_pwd, ft_strlen("PWD=") + ft_strlen(new_pwd)
-			+ 1);
-	*pwd_node = env_add_var(&shell->env, new_pwd_string, *pwd_node);
+		return ; //malloc error
 	*pwd_node = env_search_name(shell->env, "PWD");
+	*oldpwd_node = env_search_name(shell->env, "OLDPWD");
+	update_path(oldpwd_node, pwd_node, shell, "OLDPWD=");
+	*pwd_node = env_add_var(&shell->env, new_pwd_string, *pwd_node);
 	free(new_pwd_string);
+	free(pwd_value);
 	env_update_export(shell);
 }
 static int	new_cd(t_cmd *cmd, t_minishell *shell)
