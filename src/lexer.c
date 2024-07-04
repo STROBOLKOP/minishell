@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.s19.be>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/15 13:56:40 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/03 22:06:42 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/07/04 15:53:30 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,8 @@ t_token	*lexer(char *line)
 		else
 		 	exit_handler(1);
 	}
-	//print_list(&lexeme.head);
 	parser(&lexeme.head);
 //	free_list(&lexeme.head);
+//	print_list(&lexeme.head);
 	return (lexeme.head);
 }

@@ -6,12 +6,12 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/14 15:37:56 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/31 21:36:20 by efret            ###   ########.fr       */
+/*   Updated: 2024/07/04 16:27:11 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
-
+/*
 void	tokenizer(char *line)
 {
 	t_token	*head;
@@ -20,7 +20,7 @@ void	tokenizer(char *line)
 	add_token_to_end(&head, create_token(line));
 	print_list(&head);	
 }
-
+*/
 t_token	*create_token(char *string)
 {
 	t_token	*new_token;

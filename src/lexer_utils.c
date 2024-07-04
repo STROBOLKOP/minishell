@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.s19.be>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/20 10:18:56 by pclaus            #+#    #+#             */
-/*   Updated: 2024/05/28 15:45:56 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/07/04 16:30:50 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 void	update_lexer_state(t_lexeme *lexeme, char *line, int *index)
 {
-	if (line[*index] == '\'')
+	if (line[*index] == '\'' && line[*index - 1] != '=')
 		lexeme->lexing_state = SQ;
 	else if (line[*index] == ' ')
 		lexeme->lexing_state = SP;
