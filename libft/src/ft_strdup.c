@@ -6,7 +6,7 @@
 /*   By: efret <efret@student.19.be>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/21 15:59:46 by efret             #+#    #+#             */
-/*   Updated: 2024/06/18 14:16:11 by efret            ###   ########.fr       */
+/*   Updated: 2024/06/27 14:43:01 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,8 @@ char	*ft_strdup(const char *s)
 	size_t	i;
 	char	*res;
 
+	if (!s)
+		return (NULL);
 	i = ft_strlen(s);
 	res = malloc(sizeof(char) * (i + 1));
 	if (!res)

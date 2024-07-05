@@ -6,7 +6,7 @@
 /*   By: efret <efret@student.19.be>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 13:39:36 by efret             #+#    #+#             */
-/*   Updated: 2024/06/05 10:16:01 by efret            ###   ########.fr       */
+/*   Updated: 2024/06/27 14:04:41 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,8 @@ void	env_del_target(t_var **head, t_var *node)
 	else
 		*head = next;
 	free(node->name);
+	if (node->value)
+		free(node->value);
 	free(node);
 }
 

@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 19:40:59 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/25 18:25:50 by efret            ###   ########.fr       */
+/*   Updated: 2024/07/05 20:00:06 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,29 +78,8 @@ static int	new_unset(t_cmd *cmd, t_minishell *shell)
 	return (0);
 }
 
-t_var	*env_add_var_only(t_var **env, char *name)
-{
-	char	*var_name;
-	t_var	*node;
-
-	if (!name)
-		return (errno = EINVAL, NULL);
-	node = env_search_name(*env, name);
-	if (node)
-		return (node);
-	var_name = ft_calloc(ft_strlen(name) + 2, sizeof(char));
-	if (!var_name)
-		return (errno = ENOMEM, NULL);
-	ft_strlcpy(var_name, name, ft_strlen(name) + 2);
-	node = create_env_var(var_name, &var_name[ft_strlen(name)], false);
-	if (!node)
-		exit(1); // Error handling
-	env_add_back(env, node);
-	return (node);
-}
-
 /* Technically should print them sorted */
-static void	export_print(t_minishell *shell)
+static int	export_print(t_minishell *shell)
 {
 	t_var	*var;
 
@@ -110,12 +89,13 @@ static void	export_print(t_minishell *shell)
 		if (var->is_exp)
 		{
 			printf("declare -x %s", var->name);
-			if (var->value && var->value[0])
+			if (var->value)
 				printf("=\"%s\"", var->value);
 			printf("\n");
 		}
 		var = var->next;
 	}
+	return (0);
 }
 
 static int	new_export(t_cmd *cmd, t_minishell *shell)
@@ -125,14 +105,15 @@ static int	new_export(t_cmd *cmd, t_minishell *shell)
 
 	iter = 1;
 	if (!cmd->cmd_av[iter])
-		export_print(shell);
+		return (export_print(shell));
 	while (cmd->cmd_av[iter])
 	{
 		if (ft_strchr(cmd->cmd_av[iter], '='))
-			var = env_add_var(&shell->env, cmd->cmd_av[iter], NULL);
+			var = env_add_var(&shell->env, cmd->cmd_av[iter], true);
 		else
-			var = env_add_var_only(&shell->env, cmd->cmd_av[iter]);
-		var->is_exp = true;
+			var = env_add_var_only(&shell->env, cmd->cmd_av[iter], true);
+		if (!var)
+			break ;
 		iter++;
 	}
 	env_update_export(shell);
@@ -150,7 +131,7 @@ void	update_path(t_var **dest_node, t_var **source_node, t_minishell *shell,
 	ft_strlcpy(new_path, string, ft_strlen(string) + 1);
 	ft_strlcat(new_path, (*source_node)->value, (ft_strlen(new_path)
 				+ ft_strlen((*source_node)->value) + 1));
-	*dest_node = env_add_var(&shell->env, new_path, NULL);
+	*dest_node = env_add_var(&shell->env, new_path, true);
 	free(new_path);
 }
 
@@ -193,7 +174,7 @@ static void	builtin_cd_abs_path(t_var **pwd_node, t_var **oldpwd_node,
 	ft_strlcpy(new_pwd, "PWD=", 5);
 	ft_strlcat(new_pwd, cmd->cmd_av[1], (ft_strlen(new_pwd)
 				+ ft_strlen(cmd->cmd_av[1]) + 1));
-	*pwd_node = env_add_var(&shell->env, new_pwd, NULL);
+	*pwd_node = env_add_var(&shell->env, new_pwd, true);
 	free(new_pwd);
 	env_update_export(shell);
 }
@@ -221,7 +202,7 @@ static void	builtin_cd_rel_path(t_var **pwd_node, t_var **oldpwd_node,
 	ft_strlcpy(new_pwd_string, "PWD=", 5);
 	ft_strlcat(new_pwd_string, new_pwd, ft_strlen("PWD=") + ft_strlen(new_pwd)
 			+ 1);
-	*pwd_node = env_add_var(&shell->env, new_pwd_string, *pwd_node);
+	*pwd_node = env_add_var(&shell->env, new_pwd_string, true);
 	*pwd_node = env_search_name(shell->env, "PWD");
 	free(new_pwd_string);
 	env_update_export(shell);

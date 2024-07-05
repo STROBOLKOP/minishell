@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:43 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/25 17:04:43 by efret            ###   ########.fr       */
+/*   Updated: 2024/07/05 20:09:41 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,9 +77,9 @@ void	shell_lvl(t_minishell *shell)
 		token = ft_strdup("SHLVL=1");
 		if (!token)
 			exit_handler(1);
-		var = env_add_var(&shell->env, token, NULL);
-		if (var)
-			var->is_exp = true;
+		var = env_add_var(&shell->env, token, true);
+		if (!var)
+			exit_handler(1); // error
 		return (free(token));
 	}
 	lvl = ft_atoi(var->value) + 1;
@@ -96,10 +96,9 @@ void	shell_lvl(t_minishell *shell)
 	token = ft_strjoin("SHLVL=", tmp);
 	if (!token)
 		return (free(tmp));
-	var = env_add_var(&shell->env, token, NULL);
+	var = env_add_var(&shell->env, token, true);
 	if (!var)
 		exit_handler(1);// error Handling
-	var->is_exp = true;
 	return (free(tmp), free(token));
 }
 
@@ -109,11 +108,7 @@ void	old_pwd(t_minishell *shell)
 
 	var = env_search_name(shell->env, "OLDPWD");
 	if (!var)
-	{
-		var = env_add_var_only(&shell->env, "OLDPWD");
-		if (var)
-			var->is_exp = true;
-	}
+		var = env_add_var2(&shell->env, "OLDPWD", NULL, true);
 }
 
 void	init_pwd(t_minishell *shell)
@@ -128,11 +123,11 @@ void	init_pwd(t_minishell *shell)
 	pwd_token = ft_strjoin("PWD=", pwd_val);
 	if (!pwd_token)
 		return ; // Malloc error
-	var = env_add_var(&shell->env, pwd_token, NULL);
-	if (var)
-		var->is_exp = true;
+	var = env_add_var(&shell->env, pwd_token, true);
 	free(pwd_token);
 	free(pwd_val);
+	if (!var)
+		exit_handler(1); // Error
 }
 
 void	init_path(t_minishell *shell)
@@ -143,17 +138,19 @@ void	init_path(t_minishell *shell)
 	dft_p = "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
 	var = env_search_name(shell->env, "PATH");
 	if (!var)
-		var = env_add_var(&shell->env, dft_p, NULL);
+		var = env_add_var(&shell->env, dft_p, false);
 }
 
 void	shell_init(t_minishell *shell, char **envp)
 {
 	shell->env = NULL;
 	env_load(&shell->env, envp);
+	/*
 	shell_lvl(shell);
 	init_pwd(shell);
 	old_pwd(shell);
 	init_path(shell);
+	*/
 	memset(&g_shell_stats, 0, sizeof(t_shell_stats));
 	shell->export_env = make_export_envp(shell->env);
 }

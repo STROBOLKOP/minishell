@@ -6,69 +6,91 @@
 /*   By: efret <efret@student.19.be>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 14:36:12 by efret             #+#    #+#             */
-/*   Updated: 2024/06/25 17:25:48 by efret            ###   ########.fr       */
+/*   Updated: 2024/07/05 20:00:51 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
 
-static inline t_var	*is_node(t_var *node)
+t_var	*env_add_var_only(t_var **head, char *name, bool is_exp)
 {
-	if (node)
-		return (node);
-	return (NULL);
-}
+	char	*var_value;
+	char	*var_name;
+	t_var	*node;
 
-t_var	*env_add_var(t_var **head, char *token, t_var *node)
-{
-	char	*name;
-	char	*val;
-	char	*equal_sign;
-
-	name = ft_strdup(token);
-	if (!name)
-		return (errno = ENOMEM, NULL);
-	equal_sign = strchr(name, '=');
-	if (!equal_sign)
-		return (free(name), NULL);
-	val = equal_sign + 1;
-	*equal_sign = '\0';
 	node = env_search_name(*head, name);
 	if (node)
 	{
-		free(node->name);
-		node->name = name;
-		node->value = val;
+		node->is_exp = is_exp;
 		return (node);
 	}
-	if (*val == '\0')
-		val = NULL;
-	node = create_env_var(name, val, false);
+	var_name = ft_strdup(name);
+	if (!var_name)
+		return (NULL);
+	var_value = NULL;
+	node = create_env_var(var_name, var_value, is_exp);
+	if (!node)
+		return (free(var_name), NULL);
 	env_add_back(head, node);
-	return (is_node(node));
+	return (node);
+}
+
+t_var	*env_add_var2(t_var **head, char *name, char *value, bool is_exp)
+{
+	char	*var_name;
+	char	*var_value;
+	t_var	*node;
+
+	if (!name)
+		return (errno = EINVAL, NULL);
+	var_name = ft_strdup(name);
+	if (!var_name)
+		return (NULL);
+	var_value = ft_strdup(value);
+	if (!var_value && value)
+		return (free(var_name), NULL);
+	node = env_search_name(*head, var_name);
+	if (node)
+	{
+		if (node->value)
+			free(node->value);
+		node->value = var_value;
+		return (node);
+	}
+	node = create_env_var(var_name, var_value, is_exp);
+	if (!node)
+		return (free(var_name), free(var_value), NULL); // Error allocating
+	env_add_back(head, node);
+	return (node);
+}
+
+t_var	*env_add_var(t_var **head, char *token, bool is_exp)
+{
+	char	*name;
+	char	*value;
+	char	*equal_sign;
+	t_var	*node;
+
+	equal_sign = ft_strchr(token, '=');
+	if (!equal_sign)
+		return (NULL);
+	name = ft_substr(token, 0, equal_sign - token);
+	if (!name)
+		return (errno = ENOMEM, NULL);
+	value = ft_strdup(&equal_sign[1]);
+	if (!value)
+		return (free(name), errno = ENOMEM, NULL);
+	node = env_add_var2(head, name, value, is_exp);
+	free(name);
+	free(value);
+	return (node);
 }
 
 void	env_load(t_var **head, char **envp)
 {
-	char	*name;
-	char	*val;
-	char	*equal_sign;
-	t_var	*node;
-
 	while (*envp)
 	{
-		name = ft_strdup(*envp); //maybe we don't even need to dupe.
-		if (!name)
-			return (errno = ENOMEM, (void)0);
-		equal_sign = strchr(name, '=');
-		val = equal_sign + 1;
-		*equal_sign = '\0';
-		if (*val == '\0')
-			val = NULL; // should we set it to NULL or just leave it as '\0'?
-		node = create_env_var(name, val, true);
-		if (!node)
-			exit(1); //Error handling.
-		env_add_back(head, node);
+		env_add_var(head, *envp, true);
 		envp++;
 	}
 }
