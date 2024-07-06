@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:43 by pclaus            #+#    #+#             */
-/*   Updated: 2024/07/05 20:09:41 by efret            ###   ########.fr       */
+/*   Updated: 2024/07/06 10:54:17 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,20 +67,16 @@ void	load_rc(char *filename, t_minishell *shell)
 void	shell_lvl(t_minishell *shell)
 {
 	int		lvl;
-	char	*token;
 	char	*tmp;
 	t_var	*var;
 
 	var = env_search_name(shell->env, "SHLVL");
 	if (!var)
 	{
-		token = ft_strdup("SHLVL=1");
-		if (!token)
-			exit_handler(1);
-		var = env_add_var(&shell->env, token, true);
+		var = env_add_var2(&shell->env, "SHLVL", "1", true);
 		if (!var)
 			exit_handler(1); // error
-		return (free(token));
+		return ;
 	}
 	lvl = ft_atoi(var->value) + 1;
 	if (lvl > 999)
@@ -93,13 +89,10 @@ void	shell_lvl(t_minishell *shell)
 	tmp = ft_itoa(lvl);
 	if (!tmp)
 		return ;
-	token = ft_strjoin("SHLVL=", tmp);
-	if (!token)
-		return (free(tmp));
-	var = env_add_var(&shell->env, token, true);
+	var = env_add_var2(&shell->env, "SHLVL", tmp, true);
 	if (!var)
 		exit_handler(1);// error Handling
-	return (free(tmp), free(token));
+	return (free(tmp));
 }
 
 void	old_pwd(t_minishell *shell)
@@ -114,17 +107,12 @@ void	old_pwd(t_minishell *shell)
 void	init_pwd(t_minishell *shell)
 {
 	char	*pwd_val;
-	char	*pwd_token;
 	t_var	*var;
 
 	pwd_val = getcwd(NULL, 0);
 	if (!pwd_val)
 		exit_handler(1); // Error
-	pwd_token = ft_strjoin("PWD=", pwd_val);
-	if (!pwd_token)
-		return ; // Malloc error
-	var = env_add_var(&shell->env, pwd_token, true);
-	free(pwd_token);
+	var = env_add_var2(&shell->env, "PWD", pwd_val, true);
 	free(pwd_val);
 	if (!var)
 		exit_handler(1); // Error
@@ -135,22 +123,20 @@ void	init_path(t_minishell *shell)
 	t_var	*var;
 	char	*dft_p;
 
-	dft_p = "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
+	dft_p = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
 	var = env_search_name(shell->env, "PATH");
 	if (!var)
-		var = env_add_var(&shell->env, dft_p, false);
+		var = env_add_var2(&shell->env, "PATH", dft_p, false);
 }
 
 void	shell_init(t_minishell *shell, char **envp)
 {
 	shell->env = NULL;
 	env_load(&shell->env, envp);
-	/*
 	shell_lvl(shell);
 	init_pwd(shell);
 	old_pwd(shell);
 	init_path(shell);
-	*/
 	memset(&g_shell_stats, 0, sizeof(t_shell_stats));
 	shell->export_env = make_export_envp(shell->env);
 }
