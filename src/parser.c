@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.s19.be>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/28 19:09:58 by pclaus            #+#    #+#             */
-/*   Updated: 2024/07/04 16:30:58 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/07/06 18:53:52 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@ void	parser(t_token **token)
 			iter->tag = REDIRECT;
 		else if ((ft_strchr(iter->str, '=') && ft_strchr(iter->str, '\'')))
 			iter->tag = MAKE_VAR_SINGLE;
+		else if ((ft_strchr(iter->str, '=') && ft_strchr(iter->str, '"')))
+			iter->tag = MAKE_VAR_DOUBLE;
 		else if ((ft_strchr(iter->str, '=')))
 			iter->tag = MAKE_VAR;
 		else
