@@ -6,7 +6,7 @@
 /*   By: efret <efret@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/24 14:45:03 by efret             #+#    #+#             */
-/*   Updated: 2024/07/04 16:28:19 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/07/06 21:16:21 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,15 +84,22 @@ void	interactive(t_minishell *shell)
 			add_history(line);
 
 			printf("You have entered: %s\n", line);
-			tokens = lexer(line);
+			//tokens = lexer(line);
+			tokens = test_lexer(line);
 			printf("\nIn Interactive\n");
 			disp_tokens(tokens);
+
+			(void)shell;
+			(void)cmds;
+			(void)print_cmd_list(NULL);
+			/*
 			make_cmd_list(&cmds, tokens);
 			printf("\nCommand list\n");
 			print_cmd_list(cmds);
 			printf("\nCommand output:\n");
 			ft_run_cmds(cmds, shell);
 			free_cmds(&cmds);
+			*/
 			free_tokens(&tokens);
 		}
 		free(line);
