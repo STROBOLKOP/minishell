@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/17 20:13:22 by efret            ###   ########.fr       */
+/*   Updated: 2024/07/06 18:55:56 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,8 @@ typedef enum e_token_type
 	PIPE,
 	REDIRECT,
 	MAKE_VAR,
+	MAKE_VAR_SINGLE,
+	MAKE_VAR_DOUBLE,
 }	t_token_type;
 
 typedef enum e_redir_type
@@ -57,6 +59,8 @@ typedef enum e_lexing_state
 	SP,
 	META,
 	DOLLAR,
+	VAR_SINGLE,
+	VAR_DOUBLE,
 }	t_lexing_state;
 
 /*   STRUCTURES   */
@@ -176,6 +180,9 @@ void	handle_meta_char(t_lexeme *lexeme, char *line, int *index);
 void	handle_space(t_lexeme *lexeme, char *line, int *index);
 void	handle_double_quotes(t_lexeme *lexeme, char *line, int *index);
 void	handle_dollar(t_lexeme *lexeme, char *line, int *index);
+void	handle_var_single(t_lexeme *lexeme, char *line, int **index);
+void	handle_var_double(t_lexeme *lexeme, char *line, int **index);
+void	handle_var_make(t_lexeme *lexeme, char *line, int **index);
 void	parser(t_token **token);
 void	handle_sigint(void);
 void	handle_sigquit(void);
