@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:43 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/25 17:04:43 by efret            ###   ########.fr       */
+/*   Updated: 2024/07/06 10:54:17 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,20 +67,16 @@ void	load_rc(char *filename, t_minishell *shell)
 void	shell_lvl(t_minishell *shell)
 {
 	int		lvl;
-	char	*token;
 	char	*tmp;
 	t_var	*var;
 
 	var = env_search_name(shell->env, "SHLVL");
 	if (!var)
 	{
-		token = ft_strdup("SHLVL=1");
-		if (!token)
-			exit_handler(1);
-		var = env_add_var(&shell->env, token, NULL);
-		if (var)
-			var->is_exp = true;
-		return (free(token));
+		var = env_add_var2(&shell->env, "SHLVL", "1", true);
+		if (!var)
+			exit_handler(1); // error
+		return ;
 	}
 	lvl = ft_atoi(var->value) + 1;
 	if (lvl > 999)
@@ -93,14 +89,10 @@ void	shell_lvl(t_minishell *shell)
 	tmp = ft_itoa(lvl);
 	if (!tmp)
 		return ;
-	token = ft_strjoin("SHLVL=", tmp);
-	if (!token)
-		return (free(tmp));
-	var = env_add_var(&shell->env, token, NULL);
+	var = env_add_var2(&shell->env, "SHLVL", tmp, true);
 	if (!var)
 		exit_handler(1);// error Handling
-	var->is_exp = true;
-	return (free(tmp), free(token));
+	return (free(tmp));
 }
 
 void	old_pwd(t_minishell *shell)
@@ -109,30 +101,21 @@ void	old_pwd(t_minishell *shell)
 
 	var = env_search_name(shell->env, "OLDPWD");
 	if (!var)
-	{
-		var = env_add_var_only(&shell->env, "OLDPWD");
-		if (var)
-			var->is_exp = true;
-	}
+		var = env_add_var2(&shell->env, "OLDPWD", NULL, true);
 }
 
 void	init_pwd(t_minishell *shell)
 {
 	char	*pwd_val;
-	char	*pwd_token;
 	t_var	*var;
 
 	pwd_val = getcwd(NULL, 0);
 	if (!pwd_val)
 		exit_handler(1); // Error
-	pwd_token = ft_strjoin("PWD=", pwd_val);
-	if (!pwd_token)
-		return ; // Malloc error
-	var = env_add_var(&shell->env, pwd_token, NULL);
-	if (var)
-		var->is_exp = true;
-	free(pwd_token);
+	var = env_add_var2(&shell->env, "PWD", pwd_val, true);
 	free(pwd_val);
+	if (!var)
+		exit_handler(1); // Error
 }
 
 void	init_path(t_minishell *shell)
@@ -140,10 +123,10 @@ void	init_path(t_minishell *shell)
 	t_var	*var;
 	char	*dft_p;
 
-	dft_p = "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
+	dft_p = "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin";
 	var = env_search_name(shell->env, "PATH");
 	if (!var)
-		var = env_add_var(&shell->env, dft_p, NULL);
+		var = env_add_var2(&shell->env, "PATH", dft_p, false);
 }
 
 void	shell_init(t_minishell *shell, char **envp)

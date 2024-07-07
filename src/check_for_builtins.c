@@ -6,12 +6,11 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 19:40:59 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/27 11:58:12 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/07/07 11:13:02 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
-#include <unistd.h>
 
 static void	builtin_wrapper(int (*func)(t_cmd *, t_minishell *), t_cmd *cmd,
 				t_minishell *shell, int pipe_fd[2]);
@@ -75,32 +74,12 @@ static int	new_unset(t_cmd *cmd, t_minishell *shell)
 		env_del_target(&shell->env, to_unset);
 		iter++;
 	}
+	env_update_export(shell);
 	return (0);
 }
 
-t_var	*env_add_var_only(t_var **env, char *name)
-{
-	char	*var_name;
-	t_var	*node;
-
-	if (!name)
-		return (errno = EINVAL, NULL);
-	node = env_search_name(*env, name);
-	if (node)
-		return (node);
-	var_name = ft_calloc(ft_strlen(name) + 2, sizeof(char));
-	if (!var_name)
-		return (errno = ENOMEM, NULL);
-	ft_strlcpy(var_name, name, ft_strlen(name) + 2);
-	node = create_env_var(var_name, &var_name[ft_strlen(name)], false);
-	if (!node)
-		exit(1); // Error handling
-	env_add_back(env, node);
-	return (node);
-}
-
 /* Technically should print them sorted */
-static void	export_print(t_minishell *shell)
+static int	export_print(t_minishell *shell)
 {
 	t_var	*var;
 
@@ -110,12 +89,13 @@ static void	export_print(t_minishell *shell)
 		if (var->is_exp)
 		{
 			printf("declare -x %s", var->name);
-			if (var->value && var->value[0])
+			if (var->value)
 				printf("=\"%s\"", var->value);
 			printf("\n");
 		}
 		var = var->next;
 	}
+	return (0);
 }
 
 static int	new_export(t_cmd *cmd, t_minishell *shell)
@@ -125,63 +105,50 @@ static int	new_export(t_cmd *cmd, t_minishell *shell)
 
 	iter = 1;
 	if (!cmd->cmd_av[iter])
-		export_print(shell);
+		return (export_print(shell));
 	while (cmd->cmd_av[iter])
 	{
 		if (ft_strchr(cmd->cmd_av[iter], '='))
-			var = env_add_var(&shell->env, cmd->cmd_av[iter], NULL);
+			var = env_add_var(&shell->env, cmd->cmd_av[iter], true);
 		else
-			var = env_add_var_only(&shell->env, cmd->cmd_av[iter]);
-		var->is_exp = true;
+			var = env_add_var_only(&shell->env, cmd->cmd_av[iter], true);
+		if (!var)
+			break ;
 		iter++;
 	}
 	env_update_export(shell);
 	return (0);
 }
 
-void	update_path(t_var **dest_node, t_var **source_node, t_minishell *shell,
-		char *string)
+static void	builtin_cd_no_arg(t_minishell *shell)
 {
-	char	*new_path;
+	t_var	*home_node;
+	t_var	*pwd_node;
 
-	new_path = malloc(ft_strlen(string) + ft_strlen((*source_node)->value) + 1);
-	if (!new_path)
-		return ;
-	ft_strlcpy(new_path, string, ft_strlen(string) + 1);
-	ft_strlcat(new_path, (*source_node)->value, (ft_strlen(new_path)
-				+ ft_strlen((*source_node)->value) + 1));
-	*dest_node = env_add_var(&shell->env, new_path, NULL);
-	free(new_path);
-}
-
-static void	builtin_cd_no_arg(t_var **pwd_node, t_var **home_node,
-		t_var **oldpwd_node, t_minishell *shell)
-{
-	*home_node = env_search_name(shell->env, "HOME");
-	if (!(*home_node))
+	home_node = env_search_name(shell->env, "HOME");
+	if (!home_node)
 	{
 		printf("cd: HOME not set\n");
 		exit_handler(1); //error handling
 	}
-	*pwd_node = env_search_name(shell->env, "PWD");
-	*oldpwd_node = env_search_name(shell->env, "OLDPWD");
-	update_path(oldpwd_node, pwd_node, shell, "OLDPWD=");
-	update_path(pwd_node, home_node, shell, "PWD=");
-	if (chdir((*home_node)->value))
+	if (chdir(home_node->value))
 	{
 		if (errno == 2)
 			printf("No such file or directory\n");
 		g_shell_stats.prev_exit = 1;
 		exit_handler(1); //error handling
 	}
+	pwd_node = env_search_name(shell->env, "PWD");
+	if (pwd_node)
+		env_add_var2(&shell->env, "OLDPWD", pwd_node->value, true);
+	env_add_var2(&shell->env, "PWD", home_node->value, true);
 	env_update_export(shell);
 }
 
-static void	builtin_cd_arg(t_var **pwd_node, t_var **oldpwd_node,
-		t_cmd *cmd, t_minishell *shell)
+static void	builtin_cd_arg(t_cmd *cmd, t_minishell *shell)
 {
 	char	*pwd_value;
-	char	*new_pwd_string;
+	t_var	*pwd_node;
 
 	if (chdir(cmd->cmd_av[1]))
 	{
@@ -193,30 +160,19 @@ static void	builtin_cd_arg(t_var **pwd_node, t_var **oldpwd_node,
 	pwd_value = getcwd(NULL, 0);
 	if (!pwd_value)
 		exit_handler(1);//error handling
-	new_pwd_string = ft_strjoin("PWD=", pwd_value);
-	if (!new_pwd_string)
-		return ; //malloc error
-	*pwd_node = env_search_name(shell->env, "PWD");
-	*oldpwd_node = env_search_name(shell->env, "OLDPWD");
-	update_path(oldpwd_node, pwd_node, shell, "OLDPWD=");
-	*pwd_node = env_add_var(&shell->env, new_pwd_string, *pwd_node);
-	free(new_pwd_string);
+	pwd_node = env_search_name(shell->env, "PWD");
+	if (pwd_node)
+		env_add_var2(&shell->env, "OLDPWD", pwd_node->value, true);
+	env_add_var2(&shell->env, "PWD", pwd_value, true);
 	free(pwd_value);
 	env_update_export(shell);
 }
 static int	new_cd(t_cmd *cmd, t_minishell *shell)
 {
-	t_var	*home_node;
-	t_var	*pwd_node;
-	t_var	*oldpwd_node;
-
-	home_node = NULL;
-	pwd_node = NULL;
-	oldpwd_node = NULL;
 	if (!cmd->cmd_av[1])
-		builtin_cd_no_arg(&pwd_node, &home_node, &oldpwd_node, shell);
+		builtin_cd_no_arg(shell);
 	else 
-		builtin_cd_arg(&pwd_node, &oldpwd_node, cmd, shell);
+		builtin_cd_arg(cmd, shell);
 	g_shell_stats.prev_exit = 0;
 	return (0);
 }
