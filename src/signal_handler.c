@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/06/04 16:09:16 by pclaus            #+#    #+#             */
-/*   Updated: 2024/06/18 16:13:43 by efret            ###   ########.fr       */
+/*   Updated: 2024/07/08 19:35:27 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,19 @@ void	handle_sigint(void)
 	sa.sa_mask = signal_set;
 	sigaddset(&signal_set, SIGCHLD);
 	sa.sa_handler = &custom_sigint_handler_function;
+	sigaction(SIGINT, &sa, NULL);
+}
+
+void	handle_sigint_heredoc(void)
+{
+	struct sigaction	sa;
+	sigset_t			signal_set;
+
+	memset(&sa, 0, sizeof(sa));
+	sigemptyset(&signal_set);
+	sa.sa_mask = signal_set;
+	sigaddset(&signal_set, SIGCHLD);
+	sa.sa_handler = SIG_DFL;
 	sigaction(SIGINT, &sa, NULL);
 }
 

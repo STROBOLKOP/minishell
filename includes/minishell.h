@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/07/07 10:19:17 by efret            ###   ########.fr       */
+/*   Updated: 2024/07/08 20:15:14 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -187,6 +187,7 @@ void	parser(t_token **token);
 void	handle_sigint(void);
 void	handle_sigquit(void);
 void	handle_sigquit_child(void);
+void	handle_sigint_heredoc(void);
 void	handle_eof(char *line, int index);
 void	handle_sigchld(void);
 #endif
