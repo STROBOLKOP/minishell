@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/07/07 10:19:17 by efret            ###   ########.fr       */
+/*   Updated: 2024/07/08 15:33:30 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,8 @@ typedef enum e_token_type
 	MAKE_VAR,
 	MAKE_VAR_SINGLE,
 	MAKE_VAR_DOUBLE,
+	SINGLE_Q,
+	DOUBLE_Q,
 }	t_token_type;
 
 typedef enum e_redir_type
@@ -184,6 +186,8 @@ void	handle_var_single(t_lexeme *lexeme, char *line, int **index);
 void	handle_var_double(t_lexeme *lexeme, char *line, int **index);
 void	handle_var_make(t_lexeme *lexeme, char *line, int **index);
 void	parser(t_token **token);
+void	remove_quotes_from_quoted_string(t_token **token);
+void	remove_quotes_from_variables(t_token **token);
 void	handle_sigint(void);
 void	handle_sigquit(void);
 void	handle_sigquit_child(void);
