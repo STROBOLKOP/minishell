@@ -6,7 +6,7 @@
 /*   By: efret <efret@student.s19.be>               +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/24 14:45:03 by efret             #+#    #+#             */
-/*   Updated: 2024/07/06 21:16:21 by efret            ###   ########.fr       */
+/*   Updated: 2024/07/09 20:31:56 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,7 +85,7 @@ void	interactive(t_minishell *shell)
 
 			printf("You have entered: %s\n", line);
 			//tokens = lexer(line);
-			tokens = test_lexer(line);
+			tokens = test_lexer(line, shell);
 			printf("\nIn Interactive\n");
 			disp_tokens(tokens);
 

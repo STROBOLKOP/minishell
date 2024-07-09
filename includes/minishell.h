@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/07/06 21:16:03 by efret            ###   ########.fr       */
+/*   Updated: 2024/07/09 18:42:24 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,10 @@
 
 # define SH_INTR 1
 # define SH_CMD	2
+
+# define Q_NONE 0
+# define Q_SINGLE 1
+# define Q_DOUBLE 2
 
 typedef enum e_token_type
 {
@@ -191,5 +195,5 @@ void	handle_eof(char *line, int index);
 void	handle_sigchld(void);
 
 
-t_token	*test_lexer(char *line);
+t_token	*test_lexer(char *line, t_minishell *shell);
 #endif

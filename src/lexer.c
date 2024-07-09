@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.s19.be>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/15 13:56:40 by pclaus            #+#    #+#             */
-/*   Updated: 2024/07/06 21:25:33 by efret            ###   ########.fr       */
+/*   Updated: 2024/07/09 18:38:20 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,45 +45,4 @@ t_token	*lexer(char *line)
 //	free_list(&lexeme.head);
 //	print_list(&lexeme.head);
 	return (lexeme.head);
-}
-
-t_token	*next_token(char *str)
-{
-	t_token			*tok;
-	static size_t	i = 0;
-	bool			quote;
-
-	if (!str)
-		return (i = 0, NULL);
-	if (!str[i])
-		return (NULL);
-	tok = ft_calloc(1, sizeof(t_token));
-	if (!tok)
-		return (NULL);
-	quote = false;
-	while (str[i] && (str[i] == '\t' || str[i] == '\n' || str[i] == ' '))
-		i++;
-	while (str[i] && (quote || !(str[i] == '\t' || str[i] == '\n' || str[i] == ' ')))
-	{
-		if (str[i] == '\'' || str[i] == '\"')
-			quote = !quote;
-		ft_strjoin_char(&tok->str, str[i++]);
-	}
-	return (tok);
-}
-
-t_token	*test_lexer(char *line)
-{
-	t_token	*token;
-	t_token	*ret_tokens;
-
-	ret_tokens = NULL;
-	token = next_token(line);
-	while (token)
-	{
-		add_token_to_end(&ret_tokens, token);
-		token = next_token(line);
-	}
-	next_token(NULL);
-	return (ret_tokens);
 }
