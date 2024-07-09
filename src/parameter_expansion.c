@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.s19.be>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 17:27:03 by pclaus            #+#    #+#             */
-/*   Updated: 2024/07/09 15:38:28 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/07/09 18:48:49 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,8 @@ void	calculate_start_and_end(t_token **iter, int *start, int *end)
 		if ((*iter)->str[i] == '$')
 		{
 			*start = i;
-			while ((*iter)->str[i] != ' ' && (*iter)->str[i] != '"')
+			while (ft_isalnum((*iter)->str[i]) || (*iter)->str[i] == '_'
+				|| (*iter)-> str[i] == '$')
 				i++;
 			*end = i;
 		}
@@ -60,7 +61,7 @@ char	*get_expanded_string(int start, t_token **iter, char *env_value,
 	ft_strlcpy(expanded_string, (*iter)->str, start + 1);
 	ft_strlcat(expanded_string, string_to_expand, total_len + 1);
 	ft_strlcat(expanded_string, (*iter)->str + start
-		+ ft_strlen(trimmed_parameter), total_len + 1);
+			+ ft_strlen(trimmed_parameter), total_len + 1);
 	return (expanded_string);
 }
 
@@ -115,8 +116,8 @@ void	process_token(t_token *iter, t_minishell *shell)
 	if (iter->tag == CMD && ft_strchr(iter->str, '$')
 		&& (ft_strlen(iter->str) > 1))
 		expand_single_quotes(iter, env_iter);
-	if (iter->tag == DOUBLE_Q && ft_strchr(iter->str, '$')
-		&& (ft_strlen(iter->str) > 1))
+	if ((iter->tag == DOUBLE_Q || iter->tag == MAKE_VAR) && ft_strchr(iter->str,
+			'$') && (ft_strlen(iter->str) > 1))
 		expand_double_quotes(iter, env_iter, shell);
 }
 
