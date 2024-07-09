@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/10 18:32:55 by pclaus            #+#    #+#             */
-/*   Updated: 2024/07/08 15:33:30 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/07/08 17:53:22 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -174,7 +174,7 @@ void	env_update_export(t_minishell *shell);
 /*	SRC	*/
 int		check_for_builtins(t_cmd *cmd, t_minishell *shell, int pipe_fd[2]);
 void	tokenizer(char *line);
-t_token	*lexer(char *line);
+t_token	*lexer(char *line, t_minishell *shell);
 void	handle_single_quotes(t_lexeme *lexeme, char *line, int *index);
 void	handle_unquoted(t_lexeme *lexeme, char *line, int *index);
 void	update_lexer_state(t_lexeme *lexeme, char *line, int *index);
@@ -188,6 +188,7 @@ void	handle_var_make(t_lexeme *lexeme, char *line, int **index);
 void	parser(t_token **token);
 void	remove_quotes_from_quoted_string(t_token **token);
 void	remove_quotes_from_variables(t_token **token);
+void	expand_parameters(t_token **token, t_minishell *shell);
 void	handle_sigint(void);
 void	handle_sigquit(void);
 void	handle_sigquit_child(void);
