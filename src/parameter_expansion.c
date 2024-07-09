@@ -6,12 +6,11 @@
 /*   By: pclaus <pclaus@student.s19.be>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 17:27:03 by pclaus            #+#    #+#             */
-/*   Updated: 2024/07/09 18:48:49 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/07/09 21:18:59 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
-#include <readline/history.h>
 
 void	calculate_start_and_end(t_token **iter, int *start, int *end)
 {
@@ -24,9 +23,10 @@ void	calculate_start_and_end(t_token **iter, int *start, int *end)
 		{
 			*start = i;
 			while (ft_isalnum((*iter)->str[i]) || (*iter)->str[i] == '_'
-				|| (*iter)-> str[i] == '$')
+				|| (*iter)->str[i] == '$')
 				i++;
 			*end = i;
+			return ;
 		}
 		i++;
 	}
@@ -80,34 +80,41 @@ static void	expand_single_quotes(t_token *iter, t_var *env_iter)
 		}
 		env_iter = env_iter->next;
 	}
+	string_to_expand = ft_strdup("");
+	free(iter->str);
+	iter->str = string_to_expand;
 }
 
-static void	expand_double_quotes(t_token *iter, t_var *env_iter,
-		t_minishell *shell)
+static char	*get_env_value(t_var *env, char *name)
+{
+	t_var	*node;
+
+	node = env_search_name(env, name);
+	if (node)
+		return (node->value);
+	return ("");
+}
+
+static void	expand_double_quotes(t_token *iter, t_minishell *shell)
 {
 	char	*trimmed_parameter;
 	char	*expanded_string;
 	int		start;
 	int		end;
+	char	*env_value;
 
-	while (env_iter)
+	while (ft_strchr(iter->str, '$'))
 	{
 		calculate_start_and_end(&iter, &start, &end);
 		trimmed_parameter = get_trimmed_parameter(start, end, &iter, shell);
-		if (exact_match(trimmed_parameter + 1, env_iter->name) == true)
-		{
-			expanded_string = get_expanded_string(start, &iter, env_iter->value,
-					trimmed_parameter);
-			free(iter->str);
-			iter->str = expanded_string;
-			free(trimmed_parameter);
-			return ;
-		}
+		env_value = get_env_value(shell->env, trimmed_parameter + 1);
+		expanded_string = get_expanded_string(start, &iter, env_value,
+				trimmed_parameter);
+		free(iter->str);
+		iter->str = expanded_string;
 		free(trimmed_parameter);
-		env_iter = env_iter->next;
 	}
 }
-
 void	process_token(t_token *iter, t_minishell *shell)
 {
 	t_var	*env_iter;
@@ -116,9 +123,9 @@ void	process_token(t_token *iter, t_minishell *shell)
 	if (iter->tag == CMD && ft_strchr(iter->str, '$')
 		&& (ft_strlen(iter->str) > 1))
 		expand_single_quotes(iter, env_iter);
-	if ((iter->tag == DOUBLE_Q || iter->tag == MAKE_VAR) && ft_strchr(iter->str,
-			'$') && (ft_strlen(iter->str) > 1))
-		expand_double_quotes(iter, env_iter, shell);
+	else if ((iter->tag == DOUBLE_Q || iter->tag == MAKE_VAR)
+			&& ft_strchr(iter->str, '$') && (ft_strlen(iter->str) > 1))
+		expand_double_quotes(iter, shell);
 }
 
 void	expand_parameters(t_token **token, t_minishell *shell)
