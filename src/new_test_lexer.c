@@ -6,7 +6,7 @@
 /*   By: efret <efret@student.19.be>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 18:38:39 by efret             #+#    #+#             */
-/*   Updated: 2024/07/10 14:54:49 by efret            ###   ########.fr       */
+/*   Updated: 2024/07/10 15:17:45 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,8 @@ int	update_quote_state(int c, int *quote)
 {
 	if (*quote)
 	{
-		if (c == '\'' || c == '\"')
+		if ((*quote == Q_SINGLE && c == '\'')
+			|| (*quote == Q_DOUBLE && c == '\"'))
 			return (*quote = Q_NONE, 1);
 	}
 	else
@@ -120,7 +121,7 @@ t_token	*next_token(char *str, t_minishell *shell)
 			ft_strjoin_char(&tok->str, str[i++]);
 	}
 	if (quote)
-		return (free(tok), i = 0, NULL);
+		return (free(tok), i = 0, errno = EINVAL, NULL);
 	return (tok);
 }
 
@@ -131,10 +132,14 @@ t_token	*test_lexer(char *line, t_minishell *shell)
 
 	ret_tokens = NULL;
 	token = next_token(line, shell);
+	if (errno == EINVAL)
+		return (NULL);
 	while (token)
 	{
 		add_token_to_end(&ret_tokens, token);
 		token = next_token(line, shell);
+		if (errno == EINVAL)
+			return (free_tokens(&ret_tokens), NULL);
 	}
 	next_token(NULL, shell);
 	return (ret_tokens);
