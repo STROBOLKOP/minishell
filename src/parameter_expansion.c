@@ -6,7 +6,7 @@
 /*   By: pclaus <pclaus@student.s19.be>             +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/08 17:27:03 by pclaus            #+#    #+#             */
-/*   Updated: 2024/07/09 21:18:59 by pclaus           ###   ########.fr       */
+/*   Updated: 2024/07/10 09:32:05 by pclaus           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -115,12 +115,26 @@ static void	expand_double_quotes(t_token *iter, t_minishell *shell)
 		free(trimmed_parameter);
 	}
 }
+
+static void	expand_dollar_question(t_token *iter)
+{
+	char	*string_to_expand;
+	char	*prev_exit_status;
+
+	prev_exit_status = ft_itoa((int)g_shell_stats.prev_exit);
+	string_to_expand = ft_strdup(prev_exit_status);
+	free(iter->str);
+	iter->str = string_to_expand;	
+}
+
 void	process_token(t_token *iter, t_minishell *shell)
 {
 	t_var	*env_iter;
 
 	env_iter = shell->env;
-	if (iter->tag == CMD && ft_strchr(iter->str, '$')
+	if (iter->str[0] == '$' && iter->str[1] == '?')
+		expand_dollar_question(iter);
+	else if (iter->tag == CMD && ft_strchr(iter->str, '$')
 		&& (ft_strlen(iter->str) > 1))
 		expand_single_quotes(iter, env_iter);
 	else if ((iter->tag == DOUBLE_Q || iter->tag == MAKE_VAR)
