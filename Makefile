@@ -16,7 +16,7 @@ SOURCE_FILES	= main.c check_for_builtins.c exact_match.c exit_handler.c \
 				  parser.c cmd_list_utils.c cmd_make_utils.c cmd_free_utils.c \
 				  cmd_execute.c cmd_path_utils.c signal_handler.c \
 				  env_list_utils.c env_make_utils.c env_export_utils.c \
-				  remove_quotes.c parameter_expansion.c
+				  remove_quotes.c parameter_expansion.c new_test_lexer.c
 
 SOURCES_DIR		= src
 SOURCES			= $(addprefix $(SOURCES_DIR)/, $(SOURCE_FILES))
