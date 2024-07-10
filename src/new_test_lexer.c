@@ -6,7 +6,7 @@
 /*   By: efret <efret@student.19.be>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/07/09 18:38:39 by efret             #+#    #+#             */
-/*   Updated: 2024/07/09 21:12:25 by efret            ###   ########.fr       */
+/*   Updated: 2024/07/10 14:54:49 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,9 @@ t_token	*next_token(char *str, t_minishell *shell)
 	tok = ft_calloc(1, sizeof(t_token));
 	if (!tok)
 		return (NULL);
+	tok->str = ft_strdup("");
+	if (!tok->str)
+		return (free(tok), NULL);
 	while (str[i] && ft_isspace(str[i]))
 		i++;
 	quote = Q_NONE;
