@@ -6,11 +6,51 @@
 /*   By: pclaus <pclaus@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/05/31 22:08:47 by efret             #+#    #+#             */
-/*   Updated: 2024/06/18 16:23:18 by efret            ###   ########.fr       */
+/*   Updated: 2024/07/08 20:15:17 by efret            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../includes/minishell.h"
+
+static inline void	status_stuff(pid_t cpid, pid_t pid, int wstat)
+{
+	if (pid != cpid)
+		return ;
+	if (WIFEXITED(wstat))
+		g_shell_stats.prev_exit = WEXITSTATUS(wstat);
+	else if (WIFSIGNALED(wstat))
+	{
+		if (WCOREDUMP(wstat))
+		{
+			printf("Quit (core dumped)\n");
+			g_shell_stats.prev_exit = ENOTRECOVERABLE;
+		}
+		else if (WTERMSIG(wstat) == CLD_KILLED)
+		{
+			write(1, "\n", 1);
+			g_shell_stats.prev_exit = EOWNERDEAD;
+		}
+	}
+}
+
+void	ft_wait(pid_t cpid)
+{
+	int		wstat;
+	pid_t	pid;
+
+	pid = wait(&wstat);
+	while (pid > 0)
+	{
+		status_stuff(cpid, pid, wstat);
+		pid = wait(&wstat);
+	}
+	if (errno == EINTR)
+	{
+		pid = waitpid(cpid, &wstat, 0);
+		status_stuff(cpid, pid, wstat);
+	}
+	g_shell_stats.process_is_running = 0;
+}
 
 int	open_file(char *name, int flag)
 {
@@ -27,27 +67,50 @@ int	open_file(char *name, int flag)
 	return (fd);
 }
 
-int	read_here_doc(int pipe_fd[2], t_redir *redir)
+void	put_here_doc_warning(char *delim)
+{
+	ft_putstr_fd("minishell: warning: here-document ", STDERR_FILENO);
+	ft_putstr_fd("delimited by end-of-file (wanted `", STDERR_FILENO);
+	ft_putstr_fd(delim, STDERR_FILENO);
+	ft_putendl_fd("')", STDERR_FILENO);
+}
+
+void	read_here_doc(int pipe_fd[2], t_redir *redir)
 {
 	char	*line;
 
-	if (pipe(pipe_fd) == -1)
-		exit_handler(1); // Error handling
+	handle_sigint_heredoc();
+	close(pipe_fd[PIPE_R]);
 	line = readline("> ");
 	while (line)
 	{
 		if (exact_match(line, redir->str))
-		{
-			free(line);
 			break ;
-		}
 		write(pipe_fd[PIPE_W], line, ft_strlen(line));
 		write(pipe_fd[PIPE_W], "\n", 1);
 		free(line);
 		line = readline("> ");
 	}
 	close(pipe_fd[PIPE_W]);
-	return (pipe_fd[PIPE_R]);
+	if (line)
+		free(line);
+	else if (!errno)
+		put_here_doc_warning(redir->str);
+	exit(errno);
+}
+
+void	here_doc_fork(int pipe_fd[2], t_redir *redir)
+{
+	int	cpid;
+
+	cpid = fork();
+	if (cpid == -1)
+		exit_handler(1);
+	if (!cpid)
+		read_here_doc(pipe_fd, redir);
+	g_shell_stats.cmd_pid = cpid;
+	close(pipe_fd[PIPE_W]);
+	ft_wait(cpid);
 }
 
 void	parse_here_docs(t_cmd *cmds, int pipe_fd[2])
@@ -61,7 +124,13 @@ void	parse_here_docs(t_cmd *cmds, int pipe_fd[2])
 		{
 			if (redirs->flags == R_HERE)
 			{
-				redirs->fd = read_here_doc(pipe_fd, redirs);
+				g_shell_stats.process_is_running = 1;
+				if (pipe(pipe_fd) == -1)
+					exit_handler(1); // Error handling
+				here_doc_fork(pipe_fd, redirs);
+				if (g_shell_stats.prev_exit)
+					return ; // Should close some fds?
+				redirs->fd = pipe_fd[PIPE_R];
 				redirs->is_fd = true;
 			}
 			redirs = redirs->next;
@@ -142,42 +211,6 @@ static void	ft_execve(t_cmd *cmd, int pipe_fd[2], t_minishell *shell)
 	exit_handler(1); // reached if execve (execpv) had an error.
 }
 
-static inline void	status_stuff(pid_t cpid, pid_t pid, int wstat)
-{
-	if (pid != cpid)
-		return ;
-	if (WIFEXITED(wstat))
-		g_shell_stats.prev_exit = WEXITSTATUS(wstat);
-	else if (WIFSIGNALED(wstat))
-	{
-		if (WCOREDUMP(wstat))
-		{
-			printf("Quit (core dumped)\n");
-			g_shell_stats.prev_exit = ENOTRECOVERABLE;
-		}
-		else if (WTERMSIG(wstat) == CLD_KILLED)
-		{
-			write(1, "\n", 1);
-			g_shell_stats.prev_exit = EOWNERDEAD;
-		}
-	}
-}
-
-void	ft_wait(pid_t cpid)
-{
-	int		wstat;
-	pid_t	pid;
-
-	while ((pid = wait(&wstat)) > 0)
-		status_stuff(cpid, pid, wstat);
-	if (errno == EINTR)
-	{
-		pid = waitpid(cpid, &wstat, 0);
-		status_stuff(cpid, pid, wstat);
-	}
-	g_shell_stats.process_is_running = 0;
-}
-
 void	ft_run_cmds(t_cmd *cmds, t_minishell *shell)
 {
 	int	pipe_fd[2];
@@ -185,9 +218,11 @@ void	ft_run_cmds(t_cmd *cmds, t_minishell *shell)
 	int	stdin_copy;
 
 	// copy to restore stdin for later. Maybe need to do this for the other std streams as well.
-	parse_here_docs(cmds, pipe_fd);
-	stdin_copy = dup(STDIN_FILENO);
 	g_shell_stats.prev_exit = 0;
+	parse_here_docs(cmds, pipe_fd);
+	if (g_shell_stats.prev_exit)
+		return ;
+	stdin_copy = dup(STDIN_FILENO);
 	g_shell_stats.process_is_running = 1;
 	while (cmds && g_shell_stats.process_is_running)
 	{
